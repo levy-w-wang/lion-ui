@@ -2,7 +2,6 @@ const path = require('path')
 const resolve = function(dir) {
     return path.join(__dirname, dir)
 }
-
 module.exports = {
     publicPath: process.env.NODE_ENV === 'production' ? '/' : '/',
     outputDir: 'dist',
@@ -22,15 +21,15 @@ module.exports = {
             warning: false,
             error: true,
         },
-        // proxy: {
-        //     [process.env.BASE_API]: {
-        //         target: process.env.BASE_API,
-        //         changeOrigin: true,
-        //         secure: false,
-        //         pathRewrite: {
-        //             ['^' + process.env.BASE_API]: '',
-        //         },
-        //     },
-        // },
+        proxy: {
+            [process.env.VUE_APP_BASE_RUL]: {
+                target: process.env.VUE_APP_BASE_RUL,
+                changeOrigin: true,
+                secure: false,
+                pathRewrite: {
+                    ['^' + process.env.VUE_APP_BASE_RUL]: '',
+                },
+            },
+        },
     },
 }
