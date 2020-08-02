@@ -1,7 +1,10 @@
 import Vue from 'vue'
-import { Pagination, Dialog, Autocomplete, Dropdown, DropdownMenu, DropdownItem, Menu, Submenu, MenuItem, MenuItemGroup, Input, InputNumber, Radio, RadioGroup, RadioButton, Checkbox, CheckboxButton, CheckboxGroup, Switch, Select, Option, OptionGroup, Button, ButtonGroup, Table, TableColumn, DatePicker, TimeSelect, TimePicker, Popover, Tooltip, Breadcrumb, BreadcrumbItem, Form, FormItem, Tabs, TabPane, Tag, Tree, Alert, Slider, Icon, Progress, PageHeader, Card, ColorPicker, Transfer, Container, Header, Main, Footer, Link, Divider, Image, Loading, MessageBox, Message, Notification } from 'element-ui'
+import { Pagination, Dialog, Autocomplete, Dropdown, DropdownMenu, DropdownItem, Menu, Submenu, MenuItem, MenuItemGroup, Input, InputNumber, Radio, RadioGroup, RadioButton, Checkbox, CheckboxButton, CheckboxGroup, Switch, Select, Option, OptionGroup, Button, ButtonGroup, Table, TableColumn, DatePicker, TimeSelect, TimePicker, Popover, Tooltip, Breadcrumb, BreadcrumbItem, Form, FormItem, Tabs, TabPane, Tag, Tree, Alert, Slider, Icon, Progress, PageHeader, Card, ColorPicker, Transfer, Container, Header, Main, Footer, Link, Divider, Image, Loading, MessageBox, Message, Notification, Row, Col, Aside } from 'element-ui'
 
 Vue.use(Pagination)
+Vue.use(Aside)
+Vue.use(Row)
+Vue.use(Col)
 Vue.use(Dialog)
 Vue.use(Autocomplete)
 Vue.use(Dropdown)

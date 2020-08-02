@@ -59,9 +59,7 @@ export default {
                     }
                     setTimeout(() => {
                         this.logining = false
-                        this.$router.push(redirect).catch((error) => {
-                            console.info(error.message)
-                        })
+                        this.$router.push(redirect)
                         if (this.notifyObj) {
                             this.notifyObj.close()
                         }
