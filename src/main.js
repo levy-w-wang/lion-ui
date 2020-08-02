@@ -10,6 +10,13 @@ Vue.config.productionTip = false
 
 Vue.prototype.$api = api
 
+// Vue.directive('title', {
+//     //单个修改标题
+//     inserted: function(el, binding) {
+//         document.title = el.dataset.title
+//     },
+// })
+// 需要改变标题的地方使用  v-title data-title="title"
 new Vue({
     router,
     store,
