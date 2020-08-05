@@ -1,6 +1,6 @@
-<!-- 默认首页 -->
+<!--  -->
 <template>
-    <div>默认首页</div>
+    <div></div>
 </template>
 
 <script>

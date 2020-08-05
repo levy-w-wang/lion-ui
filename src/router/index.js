@@ -5,29 +5,39 @@ import store from '@/store'
 
 Vue.use(VueRouter)
 const originalPush = VueRouter.prototype.push
-VueRouter.prototype.push = function push(location) {
+VueRouter.prototype.push = function push (location) {
     return originalPush.call(this, location).catch((err) => err)
 }
 const routes = [
     {
         path: '/',
         name: 'home',
-        component: () => import('@/views/home'),
+        // component: () => import('@/views/home'),
+        component: () => import('@/layout'),
         children: [
             {
                 path: '',
-                name: '首页',
+                name: 'index',
                 component: () => import('@/views/home/defaultPage'),
+                meta: {
+                    title: '首页'
+                }
             },
             {
                 path: 'menumanage',
-                name: '菜单管理',
+                name: 'menumanage',
                 component: () => import('@/views/home/systemManage/menuManage'),
+                meta: {
+                    title: '菜单管理'
+                }
             },
             {
                 path: 'usermanage',
-                name: '用户管理',
+                name: 'usermanage',
                 component: () => import('@/views/home/systemManage/userManage'),
+                meta: {
+                    title: '用户管理'
+                }
             },
         ],
     },
@@ -35,17 +45,26 @@ const routes = [
         path: '/login',
         name: 'login',
         component: login,
+        meta: {
+            title: '登录'
+        }
     },
     {
         path: '/notfound',
         name: 'notfound',
         component: () => import('@/views/notfound'),
+        meta: {
+            title: '未找到'
+        }
     },
     {
         path: '*',
         redirect: '/notfound',
         name: 'notfound',
         component: () => import('@/views/notfound'),
+        meta: {
+            title: '未找到'
+        }
     },
 ]
 

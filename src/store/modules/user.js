@@ -7,17 +7,16 @@ export default {
     },
     getters: {
         userInfo: (state) => {
+            //此处根据登录时选择的是否 N 天免登陆判断从哪儿取
             if (state.userInfo == null) {
                 let sessionUser = sessionStorage.getItem('user')
                 if (sessionUser != null) {
-                    state.userInfo == JSON.parse(sessionUser)
-                    return sessionUser
+                    state.userInfo = JSON.parse(sessionUser)
                 } else {
                     let localeUser = localStorage.getItem('user')
                     if (localeUser != null) {
-                        state.userInfo == JSON.parse(localeUser)
+                        state.userInfo = JSON.parse(localeUser)
                     }
-                    return localeUser
                 }
             }
             return state.userInfo
@@ -27,25 +26,23 @@ export default {
                 let sessionToken = sessionStorage.getItem('token')
                 if (sessionToken != null) {
                     state.token = sessionToken
-                    return sessionToken
                 } else {
                     let localeToken = localStorage.getItem('token')
                     state.token = localeToken
-                    return localeToken
                 }
             }
             return state.token
         },
     },
     mutations: {
-        setToken(state, token, flag = true) {
+        setToken (state, token, flag = true) {
             if (flag) {
                 localStorage.setItem('token', token)
             } else {
                 sessionStorage.setItem('token', token)
             }
         },
-        setUserInfo(state, userInfo, flag = true) {
+        setUserInfo (state, userInfo, flag = true) {
             state.userInfo = userInfo
             state.token = userInfo.token
             if (flag) {
@@ -55,7 +52,7 @@ export default {
             }
             this.commit('setToken', userInfo.token, flag)
         },
-        logout(state) {
+        logout (state) {
             state.userInfo = null
             state.token = null
             localStorage.removeItem('token')
