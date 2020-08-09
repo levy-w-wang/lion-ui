@@ -1,6 +1,11 @@
 <!-- 默认首页 -->
 <template>
-    <div>默认首页</div>
+    <div>默认首页
+
+        <div>
+            <el-button type="primary">主题测试</el-button>
+        </div>
+    </div>
 </template>
 
 <script>

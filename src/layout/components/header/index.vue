@@ -1,15 +1,17 @@
 <!-- 头部文件 -->
 <template>
-    <div class="header">
+    <div class="header"
+         :style="{ background: themeColor }">
         <!-- logo -->
         <logo></logo>
         <!-- 折叠按钮 -->
-        <hamburger></hamburger>
+        <hamburger>
+        </hamburger>
         <!-- 头部导航栏 -->
         <div class="heardNavBar">
             <el-menu default-active="1"
                      class="el-menu-demo"
-                     background-color="#4b5f6e"
+                     :background-color="themeColor"
                      text-color="#fff"
                      active-text-color="#ffd04b"
                      mode="horizontal">
@@ -22,32 +24,52 @@
             </el-menu>
         </div>
         <!-- 右侧信息 -->
-        <div style="float:right">
-            <!-- 全屏 -->
-            <div style="float:left;line-height: 60px; padding: 0 10px;">
-                <i class="el-icon-full-screen"
-                   @click="toggleFull"></i>
-            </div>
-            <!-- 个人信息 -->
-            <div class="userinfo">
-                <el-dropdown trigger="hover">
-                    <span class="el-dropdown-link userinfo-inner">
-                        <img src="@assets/img/user.jpg" />
-                        {{ $store.getters.userInfo.username }}<i class="el-icon-caret-bottom"></i>
-                    </span>
-                    <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item>
-                            <router-link to="/"><i class="el-icon-s-home"></i>首页</router-link>
-                        </el-dropdown-item>
-                        <el-dropdown-item>
-                            <router-link to="/"><i class="el-icon-s-custom"></i>我的主页</router-link>
-                        </el-dropdown-item>
-                        <el-dropdown-item divided>
-                            <a @click="loginOut()"><i class="el-icon-switch-button"></i>登出</a>
-                        </el-dropdown-item>
-                    </el-dropdown-menu>
-                </el-dropdown>
-            </div>
+        <div style="float:right"
+             :background-color="themeColor">
+            <el-menu :background-color="themeColor"
+                     :text-color="themeColor"
+                     :active-text-color="themeColor"
+                     mode="horizontal">
+                <el-menu-item index="1">
+                    <!-- 主题切换 -->
+                    <theme-picker :default="themeColor"
+                                  @onThemeChange="onThemeChange">
+                    </theme-picker>
+                </el-menu-item>
+                <el-menu-item index="2"
+                              @click="toggleFull">
+                    <!-- 全屏 -->
+                    <el-tooltip effect="dark"
+                                content="全屏展示"
+                                placement="bottom">
+                        <i class="el-icon-full-screen"
+                           style="font-size: 24px;">
+                        </i>
+                    </el-tooltip>
+                </el-menu-item>
+                <el-menu-item index="3">
+                    <!-- 个人信息 -->
+                    <div class="userinfo">
+                        <el-dropdown trigger="hover">
+                            <span class="el-dropdown-link userinfo-inner">
+                                <img src="@assets/img/user.jpg" />
+                                {{ $store.getters.userInfo.username }}<i class="el-icon-caret-bottom"></i>
+                            </span>
+                            <el-dropdown-menu slot="dropdown">
+                                <el-dropdown-item>
+                                    <router-link to="/"><i class="el-icon-s-home"></i>首页</router-link>
+                                </el-dropdown-item>
+                                <el-dropdown-item>
+                                    <router-link to="/"><i class="el-icon-s-custom"></i>我的主页</router-link>
+                                </el-dropdown-item>
+                                <el-dropdown-item divided>
+                                    <a @click="loginOut()"><i class="el-icon-switch-button"></i>登出</a>
+                                </el-dropdown-item>
+                            </el-dropdown-menu>
+                        </el-dropdown>
+                    </div>
+                </el-menu-item>
+            </el-menu>
         </div>
     </div>
 </template>
@@ -55,24 +77,32 @@
 <script>
 import screenfull from 'screenfull'
 import hamburger from './hamburger'
+import ThemePicker from '@/components/ThemePicker'
 import logo from './logo'
-// import { mapState } from 'vuex'
+import { mapState } from 'vuex'
 export default {
     data () {
         return {}
     },
     computed: {
-        // ...mapState({
-        //     isCollapse: (state) => state.app.isCollapse,
-        // }),
+        ...mapState({
+            // isCollapse: (state) => state.app.isCollapse,
+            themeColor: (state) => state.app.themeColor,
+        }),
     },
     //引入组件
     components: {
         hamburger,
-        logo
+        logo,
+        ThemePicker
     },
     // 方法
     methods: {
+        // 切换主题
+        onThemeChange (themeColor) {
+            console.log(themeColor)
+            this.$store.commit("setThemeColor", themeColor);
+        },
         openUrl (url) {
             window.open(url)
         },
@@ -125,10 +155,10 @@ export default {
     }
 
     .userinfo {
-        text-align: right;
+        // text-align: right;
         padding-right: 24px;
         float: right;
-        padding: 0 10px;
+        padding: 0 5px;
         .userinfo-inner {
             font-size: 20px;
             cursor: pointer;

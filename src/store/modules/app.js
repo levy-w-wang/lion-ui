@@ -6,6 +6,7 @@ export default {
         mainTabs: [],
         // 当前访问页名
         mainTabsActiveName: '',
+        themeColor: '#5d82a0',
     },
     getters: {
         isCollapse: (state) => {
@@ -22,6 +23,9 @@ export default {
         updateMainTabsActiveName (state, name) {
             state.mainTabsActiveName = name
         },
+        setThemeColor (state, themeColor) {
+            state.themeColor = themeColor;
+        }
     },
     actions: {},
 }
