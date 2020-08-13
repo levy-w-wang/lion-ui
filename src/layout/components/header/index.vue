@@ -112,6 +112,7 @@ export default {
             })
                 .then(() => {
                     this.$store.commit('logout')
+                    this.$store.commit('resetMenu')
                 })
                 .catch(() => { })
         },

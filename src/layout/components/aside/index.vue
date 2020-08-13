@@ -7,41 +7,30 @@
                  :class="isCollapse ? 'aside-collapse-width' : 'aside-width'"
                  :collapse-transition="false"
                  :unique-opened="true"
-                 :collapse="isCollapse">
-            <el-submenu index="1">
-                <template slot="title">
-                    <i class="el-icon-setting"></i>
-                    <span slot="title">系统管理</span>
-                </template>
-                <el-menu-item index="1-1"
-                              @click="$router.push('usermanage')">用户管理</el-menu-item>
-                <el-menu-item index="1-2"
-                              @click="$router.push('menumanage')">菜单管理</el-menu-item>
-            </el-submenu>
-            <el-menu-item index="2"
-                          disabled>
-                <i class="el-icon-magic-stick"></i>
-                <span slot="title">导航一</span>
-            </el-menu-item>
-            <el-menu-item index="3"
-                          disabled>
-                <i class="el-icon-reading"></i>
-                <span slot="title">导航二</span>
-            </el-menu-item>
+                 :collapse="isCollapse"
+                 ref="menuTreeRef">
+            <menu-tree v-for="menu in menuTree"
+                       :key="menu.menuId"
+                       :menu="menu">
+            </menu-tree>
         </el-menu>
     </div>
 </template>
 
 <script>
 import { mapState } from 'vuex'
+import MenuTree from './menuTree'
 export default {
     data () {
         return {}
     },
-    //$store.getters.isCollapse
+    components: {
+        MenuTree
+    },
     computed: {
         ...mapState({
             isCollapse: (state) => state.app.isCollapse,
+            menuTree: (state) => state.app.menuTree
         }),
         mainTabs: {
             get () {
@@ -81,6 +70,14 @@ export default {
                 this.mainTabs = this.mainTabs.concat(tab)
             }
             this.mainTabsActiveName = tab.name
+            //解决刷新后，无法定位到当前打开菜单栏
+            this.$nextTick(() => {
+                // 切换标签页时同步更新高亮菜单
+                if (this.$refs.menuTreeRef != null) {
+                    this.$refs.menuTreeRef.activeIndex = "" + route.meta.index;
+                    this.$refs.menuTreeRef.initOpenedMenu();
+                }
+            })
         },
     },
 }

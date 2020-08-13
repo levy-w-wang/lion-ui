@@ -1,4 +1,4 @@
-import router from '@/router'
+import router, { resetRouter } from '@/router'
 
 export default {
     state: {
@@ -59,7 +59,13 @@ export default {
             localStorage.removeItem('user')
             sessionStorage.removeItem('token')
             sessionStorage.removeItem('user')
-            router.push('/login')
+            resetRouter() //重置路由
+            router.push({
+                path: '/login',
+                query: {
+                    redirect: '/'
+                }
+            })
         },
     },
     actions: {},
