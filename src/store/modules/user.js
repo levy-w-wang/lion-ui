@@ -54,10 +54,10 @@ export default {
         },
         logout(state) {
             // 退出时重置 storage 重置路由
-            // state.userInfo = null
-            // state.token = null
             localStorage.clear()
             sessionStorage.clear()
+            state.userInfo = null
+            state.token = null
             // localStorage.removeItem('token')
             // localStorage.removeItem('user')
             // sessionStorage.removeItem('token')
