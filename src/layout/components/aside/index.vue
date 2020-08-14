@@ -1,18 +1,9 @@
 <!-- aside -->
 <template>
-    <div class="aside-container"
-         :class="isCollapse ? 'aside-collapse-width' : 'aside-width'">
-        <!--导航菜单  default-active="1-1"-->
-        <el-menu class="el-menu-vertical-demo"
-                 :class="isCollapse ? 'aside-collapse-width' : 'aside-width'"
-                 :collapse-transition="false"
-                 :unique-opened="true"
-                 :collapse="isCollapse"
-                 ref="menuTreeRef">
-            <menu-tree v-for="menu in menuTree"
-                       :key="menu.menuId"
-                       :menu="menu">
-            </menu-tree>
+    <div class="aside-container" :class="isCollapse ? 'aside-collapse-width' : 'aside-width'">
+        <!--导航菜单  default-active="1-1"  :background-color="themeColor" -->
+        <el-menu class="el-menu-vertical-demo" :class="isCollapse ? 'aside-collapse-width' : 'aside-width'" :collapse-transition="false" :unique-opened="true" :collapse="isCollapse" ref="menuTreeRef">
+            <menu-tree v-for="menu in menuTree" :key="menu.menuId" :menu="menu"> </menu-tree>
         </el-menu>
     </div>
 </template>
@@ -21,30 +12,31 @@
 import { mapState } from 'vuex'
 import MenuTree from './menuTree'
 export default {
-    data () {
+    data() {
         return {}
     },
     components: {
-        MenuTree
+        MenuTree,
     },
     computed: {
         ...mapState({
             isCollapse: (state) => state.app.isCollapse,
-            menuTree: (state) => state.app.menuTree
+            themeColor: (state) => state.app.themeColor,
+            menuTree: (state) => state.app.menuTree,
         }),
         mainTabs: {
-            get () {
+            get() {
                 return this.$store.state.app.mainTabs
             },
-            set (val) {
+            set(val) {
                 this.$store.commit('updateMainTabs', val)
             },
         },
         mainTabsActiveName: {
-            get () {
+            get() {
                 return this.$store.state.app.mainTabsActiveName
             },
-            set (val) {
+            set(val) {
                 this.$store.commit('updateMainTabsActiveName', val)
             },
         },
@@ -52,13 +44,13 @@ export default {
     watch: {
         $route: 'handleRoute',
     },
-    created () {
+    created() {
         console.log(this.$route)
         this.handleRoute(this.$route)
     },
     methods: {
         // 路由操作处理
-        handleRoute (route) {
+        handleRoute(route) {
             // tab标签页选中, 如果不存在则先添加
             var tab = this.mainTabs.filter((item) => item.name === route.name)[0]
             if (!tab) {
@@ -74,8 +66,8 @@ export default {
             this.$nextTick(() => {
                 // 切换标签页时同步更新高亮菜单
                 if (this.$refs.menuTreeRef != null) {
-                    this.$refs.menuTreeRef.activeIndex = "" + route.meta.index;
-                    this.$refs.menuTreeRef.initOpenedMenu();
+                    this.$refs.menuTreeRef.activeIndex = '' + route.meta.index
+                    this.$refs.menuTreeRef.initOpenedMenu()
                 }
             })
         },
@@ -91,15 +83,15 @@ export default {
     z-index: 1020;
     .el-menu {
         position: absolute;
-        top: 60px;
+        top: $header-height;
         bottom: 0px;
         text-align: left;
     }
 }
 .aside-width {
-    width: 230px;
+    width: $aside-width;
 }
 .aside-collapse-width {
-    width: 65px;
+    width: $aside-collapse-width;
 }
 </style>

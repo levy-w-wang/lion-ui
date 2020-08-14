@@ -27,9 +27,7 @@
                          :key="item.name"
                          :label="item.title"
                          :name="item.name">
-                <span slot="label">
-                    <i :class="item.icon"></i> {{ item.title }}
-                </span>
+                <span slot="label"> <i :class="item.icon"></i> {{ item.title }} </span>
             </el-tab-pane>
         </el-tabs>
 
@@ -126,13 +124,13 @@ export default {
 .main-container {
     padding: 0 5px 5px;
     position: absolute;
-    top: 60px;
+    top: $header-height;
     left: 1px;
     right: 1px;
     bottom: 0px;
     .tabs {
         position: fixed;
-        top: 60px;
+        top: $header-height;
         right: 50px;
         padding-left: 0px;
         padding-right: 2px;
@@ -149,7 +147,7 @@ export default {
     }
     .tabs-tools {
         position: fixed;
-        top: 60px;
+        top: $header-height;
         right: 0;
         z-index: 1020;
         height: 40px;
@@ -178,9 +176,9 @@ export default {
     }
 }
 .position-left {
-    left: 230px;
+    left: $aside-width;
 }
 .position-collapse-left {
-    left: 65px;
+    left: $aside-collapse-width;
 }
 </style>

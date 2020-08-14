@@ -139,8 +139,8 @@ export default {
 <style lang="scss" scoped>
 .header {
     padding-left: 0px !important;
-    height: 60px;
-    line-height: 60px;
+    height: $header-height;
+    line-height: $header-height;
     width: 100%;
     background: #4b5f6e;
     color: #fff;
@@ -149,8 +149,8 @@ export default {
         float: left;
         background: #4b5f6e;
         padding: 0px 0px;
-        height: 60px;
-        line-height: 60px;
+        height: $header-height;
+        line-height: $header-height;
         font-size: 28px;
         cursor: pointer;
     }
@@ -165,10 +165,10 @@ export default {
             cursor: pointer;
             color: #fff;
             img {
-                width: 40px;
-                height: 40px;
-                border-radius: 10px;
-                margin: 10px 0px 10px 10px;
+                width: $header-height - 12px;
+                height: $header-height - 12px;
+                border-radius: 6px;
+                margin: 6px 0px 6px 6px;
                 float: right;
             }
         }

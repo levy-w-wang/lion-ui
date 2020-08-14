@@ -1,0 +1,13 @@
+// 边框宽度
+$aside-width: 200px;
+$aside-collapse-width: 60px;
+
+// 头部高度
+$header-height: 45px;
+
+.header {
+    .el-menu--horizontal > .el-menu-item {
+        height: $header-height;
+        line-height: $header-height;
+    }
+}

@@ -33,14 +33,14 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .hamburger {
     padding-left: 13px;
     padding-right: 13px;
     text-align: center;
     width: 34px;
-    height: 60px;
-    line-height: 60px;
+    height: $header-height;
+    line-height: $header-height;
     float: left;
     cursor: pointer;
 }

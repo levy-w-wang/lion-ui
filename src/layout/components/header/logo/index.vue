@@ -1,22 +1,16 @@
 <!--  -->
 <template>
-    <div class="logo"
-         :class="isCollapse ? 'logo-collapse-width' : 'logo-width'">
-        <img v-if="isCollapse"
-             src="@assets/logo6065.png"
-             @click="$router.push('/')" />
-        <img v-else
-             src="@assets/logo.png"
-             @click="$router.push('/')" />
+    <div class="logo" :class="isCollapse ? 'logo-collapse-width' : 'logo-width'">
+        <img v-if="isCollapse" class="logo-collapse-width" src="@assets/logo6065.png" @click="$router.push('/')" />
+        <img v-else src="@assets/logo.png" class="logo-width" @click="$router.push('/')" />
     </div>
 </template>
 
 <script>
 import { mapState } from 'vuex'
 export default {
-    data () {
-        return {
-        };
+    data() {
+        return {}
     },
     computed: {
         ...mapState({
@@ -24,19 +18,18 @@ export default {
         }),
     },
 }
-
 </script>
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .logo {
     float: left;
-    height: 60px;
+    height: $header-height;
     padding: 0;
     margin: 0;
 }
 .logo-width {
-    width: 230px;
+    width: $aside-width;
 }
 .logo-collapse-width {
-    width: 65px;
+    width: $aside-collapse-width;
 }
 </style>
