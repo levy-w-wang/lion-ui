@@ -8,7 +8,7 @@ export default {
         mainTabs: [],
         // 当前访问页名
         mainTabsActiveName: '',
-        themeColor: '#5d82a0',
+        themeColor: '#545c64',
         menuTree: [],
         menuLoad: false, //菜单是否已加载状态避免重复加载，刷新又将变为false。
     },
@@ -21,33 +21,33 @@ export default {
         },
     },
     mutations: {
-        toggleCollapse(state) {
+        toggleCollapse (state) {
             state.isCollapse = !state.isCollapse
         },
-        updateMainTabs(state, tabs) {
+        updateMainTabs (state, tabs) {
             state.mainTabs = tabs
         },
-        updateMainTabsActiveName(state, name) {
+        updateMainTabsActiveName (state, name) {
             state.mainTabsActiveName = name
         },
-        setThemeColor(state, themeColor) {
+        setThemeColor (state, themeColor) {
             state.themeColor = themeColor
         },
 
-        setMenuLoad(state, menuLoad) {
+        setMenuLoad (state, menuLoad) {
             state.menuLoad = menuLoad
         },
-        setMenuTree(state, menuTree) {
+        setMenuTree (state, menuTree) {
             state.menuTree = menuTree
         },
-        resetMenu(state) {
+        resetMenu (state) {
             // 这样重置依赖于个人管理， 因此在退出时做全局刷新
             state.menuTree = []
             state.mainTabs = []
             state.menuLoad = false
             state.isCollapse = false
             state.mainTabsActiveName = ''
-            state.themeColor = '#5d82a0'
+            state.themeColor = '#545c64'
         },
     },
     actions: {
@@ -69,7 +69,7 @@ export default {
         //         })
         //     })
         //   },
-        getMenuTree({ commit }, username) {
+        getMenuTree ({ commit }, username) {
             return new Promise((resolve, reject) => {
                 getMenu(username)
                     .then((res) => {

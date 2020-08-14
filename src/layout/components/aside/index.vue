@@ -1,9 +1,21 @@
 <!-- aside -->
 <template>
-    <div class="aside-container" :class="isCollapse ? 'aside-collapse-width' : 'aside-width'">
+    <div class="aside-container"
+         :class="isCollapse ? 'aside-collapse-width' : 'aside-width'">
         <!--导航菜单  default-active="1-1"  :background-color="themeColor" -->
-        <el-menu class="el-menu-vertical-demo" :class="isCollapse ? 'aside-collapse-width' : 'aside-width'" :collapse-transition="false" :unique-opened="true" :collapse="isCollapse" ref="menuTreeRef">
-            <menu-tree v-for="menu in menuTree" :key="menu.menuId" :menu="menu"> </menu-tree>
+        <el-menu class="el-menu-vertical-demo"
+                 :class="isCollapse ? 'aside-collapse-width' : 'aside-width'"
+                 :collapse-transition="false"
+                 :unique-opened="true"
+                 :collapse="isCollapse"
+                 ref="menuTreeRef"
+                 :background-color="themeColor"
+                 text-color="#fff"
+                 active-text-color="#ffd04b">
+            <menu-tree v-for="menu in menuTree"
+                       :key="menu.menuId"
+                       :menu="menu">
+            </menu-tree>
         </el-menu>
     </div>
 </template>
@@ -12,7 +24,7 @@
 import { mapState } from 'vuex'
 import MenuTree from './menuTree'
 export default {
-    data() {
+    data () {
         return {}
     },
     components: {
@@ -25,18 +37,18 @@ export default {
             menuTree: (state) => state.app.menuTree,
         }),
         mainTabs: {
-            get() {
+            get () {
                 return this.$store.state.app.mainTabs
             },
-            set(val) {
+            set (val) {
                 this.$store.commit('updateMainTabs', val)
             },
         },
         mainTabsActiveName: {
-            get() {
+            get () {
                 return this.$store.state.app.mainTabsActiveName
             },
-            set(val) {
+            set (val) {
                 this.$store.commit('updateMainTabsActiveName', val)
             },
         },
@@ -44,13 +56,13 @@ export default {
     watch: {
         $route: 'handleRoute',
     },
-    created() {
+    created () {
         console.log(this.$route)
         this.handleRoute(this.$route)
     },
     methods: {
         // 路由操作处理
-        handleRoute(route) {
+        handleRoute (route) {
             // tab标签页选中, 如果不存在则先添加
             var tab = this.mainTabs.filter((item) => item.name === route.name)[0]
             if (!tab) {

@@ -18,7 +18,7 @@
                 <el-menu-item index="1"
                               @click="$router.push('/')">首页</el-menu-item>
                 <el-menu-item index="2"
-                              @click="openUrl('#')">使用文档</el-menu-item>
+                              @click="openUrl('http://book.levy.net.cn/doc/frontend/uiframe/env.html')">使用文档</el-menu-item>
                 <el-menu-item index="3"
                               @click="openUrl('https://github.com/levy-w-wang/lion-ui')">GitHub</el-menu-item>
             </el-menu>
