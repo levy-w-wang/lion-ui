@@ -35,14 +35,14 @@ export default {
         },
     },
     mutations: {
-        setToken (state, token, flag = true) {
+        setToken(state, token, flag = true) {
             if (flag) {
                 localStorage.setItem('token', token)
             } else {
                 sessionStorage.setItem('token', token)
             }
         },
-        setUserInfo (state, userInfo, flag = true) {
+        setUserInfo(state, userInfo, flag = true) {
             state.userInfo = userInfo
             state.token = userInfo.token
             if (flag) {
@@ -52,19 +52,22 @@ export default {
             }
             this.commit('setToken', userInfo.token, flag)
         },
-        logout (state) {
-            state.userInfo = null
-            state.token = null
-            localStorage.removeItem('token')
-            localStorage.removeItem('user')
-            sessionStorage.removeItem('token')
-            sessionStorage.removeItem('user')
+        logout(state) {
+            // 退出时重置 storage 重置路由
+            // state.userInfo = null
+            // state.token = null
+            localStorage.clear()
+            sessionStorage.clear()
+            // localStorage.removeItem('token')
+            // localStorage.removeItem('user')
+            // sessionStorage.removeItem('token')
+            // sessionStorage.removeItem('user')
             resetRouter() //重置路由
             router.push({
                 path: '/login',
                 query: {
-                    redirect: '/'
-                }
+                    redirect: '/',
+                },
             })
         },
     },

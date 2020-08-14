@@ -10,7 +10,7 @@ export default {
         mainTabsActiveName: '',
         themeColor: '#5d82a0',
         menuTree: [],
-        menuLoad: false,//菜单是否已加载状态避免重复加载，刷新又将变为false。
+        menuLoad: false, //菜单是否已加载状态避免重复加载，刷新又将变为false。
     },
     getters: {
         isCollapse: (state) => {
@@ -21,32 +21,34 @@ export default {
         },
     },
     mutations: {
-        toggleCollapse (state) {
+        toggleCollapse(state) {
             state.isCollapse = !state.isCollapse
         },
-        updateMainTabs (state, tabs) {
+        updateMainTabs(state, tabs) {
             state.mainTabs = tabs
         },
-        updateMainTabsActiveName (state, name) {
+        updateMainTabsActiveName(state, name) {
             state.mainTabsActiveName = name
         },
-        setThemeColor (state, themeColor) {
-            state.themeColor = themeColor;
+        setThemeColor(state, themeColor) {
+            state.themeColor = themeColor
         },
 
-        setMenuLoad (state, menuLoad) {
-            state.menuLoad = menuLoad;
+        setMenuLoad(state, menuLoad) {
+            state.menuLoad = menuLoad
         },
-        setMenuTree (state, menuTree) {
-            state.menuTree = menuTree;
+        setMenuTree(state, menuTree) {
+            state.menuTree = menuTree
         },
-        resetMenu (state) {
-            state.menuTree = [];
+        resetMenu(state) {
+            // 这样重置依赖于个人管理， 因此在退出时做全局刷新
+            state.menuTree = []
+            state.mainTabs = []
             state.menuLoad = false
             state.isCollapse = false
             state.mainTabsActiveName = ''
             state.themeColor = '#5d82a0'
-        }
+        },
     },
     actions: {
         // haveArg({ commit }, arg) {
@@ -54,7 +56,7 @@ export default {
         //       func(arg)
         //         .then(res => {
         //           if (res.code === 0) {
-        //             if (res.data.success) {                      
+        //             if (res.data.success) {
         //               commit('xxx', res.data.xxx)
         //             } else {
         //              xxx
@@ -67,22 +69,23 @@ export default {
         //         })
         //     })
         //   },
-        getMenuTree ({ commit }, username) {
+        getMenuTree({ commit }, username) {
             return new Promise((resolve, reject) => {
-                getMenu(username).then(res => {
-                    if (res.code === 200) {
-                        if (res.success) {
-                            commit('setMenuTree', res.data)
-                        } else {
-                            // TODO 处理错误消息
+                getMenu(username)
+                    .then((res) => {
+                        if (res.code === 200) {
+                            if (res.success) {
+                                commit('setMenuTree', res.data)
+                            } else {
+                                // TODO 处理错误消息
+                            }
+                            resolve(res.data)
                         }
-                        resolve(res.data)
-                    }
-                })
-                    .catch(error => {
+                    })
+                    .catch((error) => {
                         reject(error)
                     })
             })
-        }
+        },
     },
 }
