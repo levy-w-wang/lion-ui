@@ -27,8 +27,8 @@
         <div style="float:right"
              :background-color="themeColor">
             <el-menu :background-color="themeColor"
-                     :text-color="themeColor"
-                     :active-text-color="themeColor"
+                     text-color="#fff"
+                     active-text-color="#aaa2aa"
                      mode="horizontal">
                 <el-menu-item index="1">
                     <!-- 主题切换 -->
@@ -47,7 +47,17 @@
                         </i>
                     </el-tooltip>
                 </el-menu-item>
-                <el-menu-item index="3">
+                <el-menu-item index="3"
+                              @click="toggleShowHiteMsg">
+                    <!-- 信息提示 -->
+                    <el-badge :is-dot="hasHiteMessage"
+                              class="badge-item">
+                        <i class="el-icon-message-solid"
+                           style="font-size: 24px;">
+                        </i>
+                    </el-badge>
+                </el-menu-item>
+                <el-menu-item index="4">
                     <!-- 个人信息 -->
                     <div class="userinfo">
                         <el-dropdown trigger="hover">
@@ -82,13 +92,23 @@ import logo from './logo'
 import { mapState } from 'vuex'
 export default {
     data () {
-        return {}
+        return {
+        }
     },
     computed: {
         ...mapState({
             // isCollapse: (state) => state.app.isCollapse,
             themeColor: (state) => state.app.themeColor,
+            hasHiteMessage: (state) => state.user.hiteMessage.length > 0,
         }),
+        showHiteMessage: {
+            get () {
+                return this.$store.state.user.showHiteMessage
+            },
+            set () {
+                this.$store.commit('toggleShowHiteMessage')
+            }
+        }
     },
     //引入组件
     components: {
@@ -126,6 +146,9 @@ export default {
             }
             screenfull.toggle()
         },
+        toggleShowHiteMsg () {
+            this.showHiteMessage = !this.showHiteMessage;
+        }
     },
     //未挂载DOM,不能访问ref为空数组
     //可在这结束loading，还做一些初始化，实现函数自执行,
@@ -172,6 +195,10 @@ export default {
                 float: right;
             }
         }
+    }
+    ::v-deep .el-badge__content {
+        margin-top: 10px;
+        margin-right: 10px;
     }
 }
 </style>

@@ -1,6 +1,6 @@
 <!--  -->
 <template>
-    <div class="main-container clear"
+    <div class="main-container"
          :class="isCollapse ? 'position-collapse-left' : 'position-left'">
         <!-- 标签页 -->
         <el-tabs class="tabs"
@@ -30,7 +30,8 @@
                 <span slot="label"> <i :class="item.icon"></i> {{ item.title }} </span>
             </el-tab-pane>
         </el-tabs>
-
+        <!-- 消息提示 -->
+        <notice-drawer class="notice"></notice-drawer>
         <!-- 主内容区域 -->
         <div class="main-content">
             <keep-alive>
@@ -45,9 +46,13 @@
 
 <script>
 import { mapState } from 'vuex'
+import NoticeDrawer from './noticeDrawer'
 export default {
     data () {
         return {}
+    },
+    components: {
+        NoticeDrawer
     },
     computed: {
         ...mapState({
@@ -128,6 +133,10 @@ export default {
     left: 1px;
     right: 1px;
     bottom: 0px;
+    .notice {
+        top: $header-height + 45px;
+        // position: fixed;
+    }
     .tabs {
         position: fixed;
         top: $header-height;

@@ -4,6 +4,9 @@ export default {
     state: {
         userInfo: null, //用户信息
         token: null,
+        hiteMessage: [{ id: 1, title: '测试提示信息', message: '测试信息主体', time: '2020-08-15', url: '#' },
+        { id: 2, title: '长标题测试长标题测试长标题测试长标题测试长标题测试长标题测试', message: '测试信息主体', time: '2020-08-15', url: '#' },],
+        showHiteMessage: false,
     },
     getters: {
         userInfo: (state) => {
@@ -35,14 +38,14 @@ export default {
         },
     },
     mutations: {
-        setToken(state, token, flag = true) {
+        setToken (state, token, flag = true) {
             if (flag) {
                 localStorage.setItem('token', token)
             } else {
                 sessionStorage.setItem('token', token)
             }
         },
-        setUserInfo(state, userInfo, flag = true) {
+        setUserInfo (state, userInfo, flag = true) {
             state.userInfo = userInfo
             state.token = userInfo.token
             if (flag) {
@@ -52,7 +55,7 @@ export default {
             }
             this.commit('setToken', userInfo.token, flag)
         },
-        logout(state) {
+        logout (state) {
             // 退出时重置 storage 重置路由
             localStorage.clear()
             sessionStorage.clear()
@@ -69,6 +72,10 @@ export default {
                     redirect: '/',
                 },
             })
+        },
+        toggleShowHiteMessage (state) {
+            state.showHiteMessage = !state.showHiteMessage;
+            console.log(state.showHiteMessage);
         },
     },
     actions: {},
