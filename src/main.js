@@ -4,11 +4,15 @@ import router from './router'
 import store from './store'
 import './plugins/element.js'
 import api from '@/api'
+import '@/assets/styles/base.scss'
+import PaginationFooter from '@/components/PaginationFooter'
+
 import VueWechatTitle from 'vue-wechat-title'//动态修改title
 Vue.use(VueWechatTitle)
 
+Vue.component("pagination-footer", PaginationFooter);
 Vue.config.productionTip = false
-// Vue.prototype.$ELEMENT = { size: 'small', zIndex: 3000 }
+// Vue.prototype.$ELEMENT = { size: 'medium', zIndex: 3000 }
 
 Vue.prototype.$api = api
 

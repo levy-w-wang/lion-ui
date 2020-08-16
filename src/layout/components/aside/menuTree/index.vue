@@ -24,6 +24,7 @@
             </span>
         </el-menu-item>
         <el-menu-item v-else
+                      v-show="menu.hidden !== true"
                       :index="'' + menu.menuId"
                       @click="$router.push('/' + menu.url)">
             <i :class="menu.icon"></i>

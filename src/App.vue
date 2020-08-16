@@ -17,7 +17,8 @@ export default {
     font-family: "Avenir", Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    text-align: center;
+    font-size: 12px;
+    /* text-align: center; */
     /* color: #2c3e50;
     margin-top: 60px; */
     position: absolute;
@@ -25,5 +26,6 @@ export default {
     bottom: 0px;
     left: 0px;
     right: 0px;
+    background-color: #f2f2f2;
 }
 </style>

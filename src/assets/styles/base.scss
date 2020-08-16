@@ -14,7 +14,7 @@ $header-height: 45px;
 }
 
 // 去掉点击选中时的边框
-::v-deep :focus{ 
+::v-deep :focus { 
     outline:0;
 }
 
@@ -27,4 +27,28 @@ a {
       text-decoration: none;
       color: #48a1fa;
     }
+}
+
+.top-div-button {
+    padding: 15px 0px 15px 15px;
+}
+
+.search-form {
+    padding: 10px 0px 15px 25px;
+}
+
+.public-pagination {
+    padding: 25px 30px 25px 30px;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: justify;
+    -webkit-justify-content: space-between;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
 }

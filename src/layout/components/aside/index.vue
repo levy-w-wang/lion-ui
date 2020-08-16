@@ -104,7 +104,7 @@ export default {
     .el-scrollbar {
         height: calc(100% - #{$header-height});
         top: $header-height;
-        bottom: 50px;
+        bottom: 0px;
         overflow-y: auto;
     }
 }
