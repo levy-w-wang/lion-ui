@@ -22,12 +22,12 @@ lion-ui 基于 vue+element_ui 开发的 RBAC 管理系统前端项目，实现�
 
 **tips:master分支代码使用的 fastmock 的数据，拉下来可直接使用的，可切换配置文件中的地址。mock数据 格式在教程中都有**
 
-# License
-
 # 扫码二维码关注公众号
 
 不定期分享学习所得。  
 <img src="https://files.cnblogs.com/files/levywang/%E4%BA%8C%E7%BB%B4%E7%A0%81%E5%A4%A7%E5%9E%8B.bmp" width="200px" />
+
+# License
 
 [MIT](https://github.com/levy-w-wang/lion-ui/blob/master/LICENSE)
 
