@@ -6,6 +6,8 @@ import './plugins/element.js'
 import api from '@/api'
 import '@/assets/styles/base.scss'
 import PaginationFooter from '@/components/PaginationFooter'
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
 
 import VueWechatTitle from 'vue-wechat-title'//动态修改title
 Vue.use(VueWechatTitle)
@@ -16,6 +18,8 @@ Vue.config.productionTip = false
 
 Vue.prototype.$api = api
 
+/**进度环显示隐藏 */
+NProgress.configure({ showSpinner: false });
 // Vue.directive('title', {
 //     //单个修改标题
 //     inserted: function(el, binding) {

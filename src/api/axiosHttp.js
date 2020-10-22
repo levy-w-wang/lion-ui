@@ -1,16 +1,21 @@
 import axios from 'axios'
 import qs from 'qs'
+import store from "@/store/index";
 import router from '@/router'
-import config from './config'
+import apiConfig from './config'
 import { Message } from 'element-ui'
 
-axios.defaults.timeout = config.timeout
-axios.defaults.headers = config.headers
-axios.defaults.baseURL = config.baseURL
+axios.defaults.timeout = apiConfig.timeout
+axios.defaults.headers = apiConfig.headers
+axios.defaults.baseURL = apiConfig.baseURL
 
 // 请求拦截器
 axios.interceptors.request.use(
     (config) => {
+        var length = config.url.indexOf('?') == -1 ? config.url.length : config.url.indexOf('?');
+        if (!apiConfig.noneLoadingList.includes(config.url.substring(0, length))) {
+            store.commit("startLoading");
+        }
         // 触发loading效果
         //判断是否存在token,如果存在，则在header上加上token
         // let token = getStore('token')
@@ -30,7 +35,6 @@ axios.interceptors.request.use(
         return config
     },
     (err) => {
-        // 关闭loading
         // 失败提示
         return Promise.resolve(err)
     }
@@ -39,6 +43,11 @@ axios.interceptors.request.use(
 // 响应拦截器
 axios.interceptors.response.use(
     (response) => {
+        var requestUrl = response.config.url;
+        var length = requestUrl.indexOf('?') == -1 ? requestUrl.length : requestUrl.indexOf('?');
+        if (!apiConfig.noneLoadingList.includes(requestUrl.substring(0, length))) {
+            store.commit("endLoading");
+        }
         // 关闭loading
         if (!response || !response.data || !response.data.success) {
             // 失败提示
@@ -51,7 +60,7 @@ axios.interceptors.response.use(
                     // 返回 401 清除token信息并跳转到登录页面
                     // store.commit('LOGOUT')
                     Message.error('登录已失效，请重新登录')
-                    setTimeout(function() {
+                    setTimeout(function () {
                         router.replace({
                             path: '/login',
                             // 登录成功后跳入浏览的当前页面
@@ -62,13 +71,18 @@ axios.interceptors.response.use(
                 case 402:
                     //402无权限操作
                     Message.error('无权限操作')
-                    return new Promise(() => {}) //外部不会再处理
+                    return new Promise(() => { }) //外部不会再处理
                     break
             }
         }
         return response
     },
     (err) => {
+        var requestUrl = err.response.config.url
+        var length = requestUrl.indexOf('?') == -1 ? requestUrl.length : requestUrl.indexOf('?');
+        if (!apiConfig.noneLoadingList.includes(requestUrl.substring(0, length))) {
+            store.commit("endLoading");
+        }
         // 关闭loading
         // 提示异常
         let errMessage = ''
@@ -114,11 +128,11 @@ axios.interceptors.response.use(
         }
         Message.error(errMessage)
         //外部不会再处理
-        return new Promise(() => {})
+        return new Promise(() => { })
     }
 )
 export default {
-    Get(url, params = {}) {
+    Get (url, params = {}) {
         return new Promise((resolve, reject) => {
             axios
                 .get(url, { params })
@@ -131,7 +145,7 @@ export default {
                 })
         })
     },
-    Post(url, params = {}) {
+    Post (url, params = {}) {
         return new Promise((resolve, reject) => {
             axios
                 .post(url, params)
@@ -144,7 +158,7 @@ export default {
                 })
         })
     },
-    Delete(url, params = {}) {
+    Delete (url, params = {}) {
         return new Promise((resolve, reject) => {
             axios
                 .delete(url, params)
@@ -157,7 +171,7 @@ export default {
                 })
         })
     },
-    Put(url, params = {}) {
+    Put (url, params = {}) {
         return new Promise((resolve, reject) => {
             axios
                 .put(url, params)

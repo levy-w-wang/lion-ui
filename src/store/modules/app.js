@@ -1,4 +1,6 @@
 import { getMenu } from '@/api/modules/system'
+import NProgress from 'nprogress'
+import { Loading } from 'element-ui'
 
 export default {
     state: {
@@ -11,6 +13,8 @@ export default {
         themeColor: '#545c64',
         menuTree: [],
         menuLoad: false, //菜单是否已加载状态避免重复加载，刷新又将变为false。
+        loading: false,/**加载状态 */
+        loadingCount: 0,/**加载个数 */
     },
     getters: {
         isCollapse: (state) => {
@@ -48,6 +52,31 @@ export default {
             state.isCollapse = false
             state.mainTabsActiveName = ''
             state.themeColor = '#545c64'
+        },
+        /**开始加载 */
+        startLoading (state) {
+            state.loadingCount++
+            if (!this.loading) {
+                NProgress.start()/**请求进度条-开始 */
+                this.loading = Loading.service({
+                    lock: true,
+                    text: 'Loading',
+                    spinner: 'el-icon-loading',
+                    background: 'rgba(0, 0, 0, 0.8)'
+                })
+            }
+        },
+        /**结束加载 */
+        endLoading (state) {
+            state.loadingCount--
+            if (state.loadingCount <= 0) {
+                state.loadingCount = 0
+                if (this.loading) {
+                    NProgress.done() /**请求进度条-结束 */
+                    this.loading.close()
+                    this.loading = false
+                }
+            }
         },
     },
     actions: {

@@ -13,4 +13,5 @@ export default {
     timeout: 10000,
     // 返回数据类型
     responseType: 'json',
+    noneLoadingList: ['api/menu', 'api/usermenu']
 }

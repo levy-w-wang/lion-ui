@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import login from '@/views/login'
 import store from '@/store'
+import NProgress from 'nprogress'
 import { getMenu } from '@/api/modules/system'
 
 Vue.use(VueRouter)
@@ -87,10 +88,14 @@ export function resetRouter () {
     const reset = defultRouter()
     router.matcher = reset.matcher
 }
-
+/**路由后 */
+router.afterEach(() => {
+    NProgress.done()/**请求进度条-结束 */
+})
 const WhiteListRouter = ['/login', '/notfound'] // 路由白名单
 //导航守卫  路由开始前
 router.beforeEach(async (to, from, next) => {
+    NProgress.start()/**请求进度条-开始 */
     let user = store.getters.userInfo
     let token = store.getters.token
     var hasAuth = user !== null && token !== null && user !== undefined && token !== undefined
