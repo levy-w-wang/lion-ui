@@ -2,19 +2,57 @@
     <div class="loginContain">
         <div class="loginBox">
             <h2 class="loginH2"><strong>Vue</strong> 后台管理系统</h2>
-            <el-form :model="loginForm" :rules="loginFormRules" ref="loginForm" label-position="left" label-width="0px" class="login-form">
-                <el-form-item prop="username">
-                    <el-input type="text" v-model="loginForm.username" auto-complete="off" placeholder="请输入账号">
-                        <i slot="prefix" class="el-input__icon el-icon-user-solid"></i>
+            <el-form :model="loginForm"
+                     :rules="loginFormRules"
+                     ref="loginForm"
+                     label-position="left"
+                     label-width="0px"
+                     class="login-form">
+                <el-form-item prop="userName">
+                    <el-input type="text"
+                              v-model="loginForm.userName"
+                              auto-complete="off"
+                              @keyup.enter.native="login"
+                              placeholder="请输入账号">
+                        <i slot="prefix"
+                           class="el-input__icon el-icon-user-solid"></i>
                     </el-input>
                 </el-form-item>
                 <el-form-item prop="password">
-                    <el-input type="password" v-model="loginForm.password" auto-complete="off" placeholder="密码">
-                        <i slot="prefix" class="el-input__icon el-icon-lock"></i>
+                    <el-input type="password"
+                              v-model="loginForm.password"
+                              auto-complete="off"
+                              @keyup.enter.native="login"
+                              show-password
+                              placeholder="密码">
+                        <i slot="prefix"
+                           class="el-input__icon el-icon-lock"></i>
                     </el-input>
                 </el-form-item>
+                <el-form-item prop="captcha">
+                    <el-row>
+                        <el-col :span="14">
+                            <el-input type="text"
+                                      v-model="loginForm.captcha"
+                                      @keyup.enter.native="login"
+                                      auto-complete="off"
+                                      placeholder="请输入验证码">
+                            </el-input>
+                        </el-col>
+                        <el-col :span="8"
+                                :offset="2">
+                            <el-image @click="getCaptcha"
+                                      class="captcha_img"
+                                      :src="captchaBase64"></el-image>
+                        </el-col>
+                    </el-row>
+                </el-form-item>
                 <el-form-item style="width:100%;">
-                    <el-button type="primary" style="  width: 100%; background: #19b9e7;" @click.native.prevent="login" :loading="logining">登 录</el-button>
+
+                    <el-button type="primary"
+                               style="width: 100%; background: #19b9e7;"
+                               @click.native.prevent="login"
+                               :loading="logining">登 录</el-button>
                 </el-form-item>
             </el-form>
         </div>
@@ -23,17 +61,21 @@
 
 <script>
 export default {
-    data() {
+    data () {
         return {
             logining: false,
             loginForm: {
-                username: 'admin',
-                password: '123456',
+                userName: 'levy',
+                password: 'qwer1234',
+                captcha: '',
+                uuid: ''
             },
+            captchaBase64: '',
             notifyObj: null,
             loginFormRules: {
-                username: [{ required: true, message: '请输入账号', trigger: 'blur' }],
+                userName: [{ required: true, message: '请输入账号', trigger: 'blur' }],
                 password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+                captcha: [{ required: true, message: '请输入验证码', trigger: 'blur' }, { pattern: '^[A-Za-z0-9]{4}$', message: '验证码为4位字符', trigger: ['blur', 'change'] }],
             },
         }
     },
@@ -41,36 +83,51 @@ export default {
     components: {},
     // 方法
     methods: {
-        login() {
-            this.logining = true
-            let userInfo = { username: this.loginForm.username, password: this.loginForm.password }
-            this.$api.login(userInfo).then((res) => {
-                if (res.success) {
-                    this.$store.commit('setUserInfo', res.data)
-                    this.$message({
-                        type: 'success',
-                        message: '登录成功',
-                        duration: 800,
-                    })
+        login () {
+            this.$refs['loginForm'].validate((valid) => {
+                if (valid) {
+                    this.logining = true
+                    this.$api.user.login(this.loginForm).then((res) => {
+                        if (res.data && res.success) {
+                            this.$store.commit('setUserInfo', res.data)
+                            this.$message({
+                                type: 'success',
+                                message: '登录成功',
+                                duration: 800,
+                            })
 
-                    let redirect = '/'
-                    if (this.$route.query.redirect !== undefined) {
-                        redirect = this.$route.query.redirect
-                    }
-                    setTimeout(() => {
-                        this.logining = false
-                        this.$router.push(redirect)
-                        if (this.notifyObj) {
-                            this.notifyObj.close()
+                            let redirect = '/'
+                            if (this.$route.query.redirect !== undefined) {
+                                redirect = this.$route.query.redirect
+                            }
+                            setTimeout(() => {
+                                this.logining = false
+                                this.$router.push(redirect)
+                                if (this.notifyObj) {
+                                    this.notifyObj.close()
+                                }
+                                this.notifyObj = null
+                            }, 800)
+                        } else {
+                            this.logining = false
+                            this.getCaptcha()
+                            this.$message({
+                                type: 'error',
+                                message: res.message,
+                            })
                         }
-                        this.notifyObj = null
-                    }, 800)
-                } else {
-                    this.logining = false
-                    this.$message({
-                        type: 'error',
-                        message: '账号或密码错误',
                     })
+                } else {
+                    return false;
+                }
+            });
+        },
+        getCaptcha () {
+            this.$api.system.getCaptcha().then(res => {
+                if (res.code == 200 && res.data) {
+                    this.captchaBase64 = 'data:image/png;base64,' + res.data.captchaBase64Data
+                    this.loginForm.uuid = res.data.uuid
+                    this.loginForm.captcha = ''
                 }
             })
         },
@@ -80,20 +137,21 @@ export default {
     //未挂载DOM,不能访问ref为空数组
     //可在这结束loading，还做一些初始化，实现函数自执行,
     //可以对data数据进行操作，可进行一些请求，请求不易过多，避免白屏时间太长。
-    created() {
+    created () {
         //若是使用状态退出 则刷新一下 重置vuex
         if (this.$store.state.app.mainTabsActiveName != '') {
             window.location.reload()
         }
     },
     //可在这发起后端请求，拿回数据，配合路由钩子做一些事情；可对DOM 进行操作
-    mounted() {
+    mounted () {
         this.notifyObj = this.$notify({
             title: '提示',
             message: '管理员，账号分别为：admin,用户账号：user,密码均为：123456',
             duration: 4000,
             iconClass: 'el-icon-s-opportunity',
         })
+        this.getCaptcha();
     },
 }
 </script>
@@ -106,6 +164,11 @@ $inputHeight: 48px;
     background: url(../../assets/img/loginbg.jpg) no-repeat center center;
     background-size: 100% 100%;
     overflow: hidden;
+    .captcha_img {
+        display: inline;
+        line-height: 52px;
+        vertical-align: -webkit-baseline-middle;
+    }
 }
 .loginBox {
     height: 455px;

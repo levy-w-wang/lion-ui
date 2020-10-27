@@ -18,10 +18,10 @@ axios.interceptors.request.use(
         }
         // 触发loading效果
         //判断是否存在token,如果存在，则在header上加上token
-        // let token = getStore('token')
-        // if (token) {
-        //     config.headers.common['token'] = token
-        // }
+        let token = store.getters.token
+        if (token) {
+            config.headers.token = token
+        }
         if (config.method == 'post' || config.method == 'put') {
             //将数据转成string
             config.data = JSON.stringify(config.data)
@@ -60,12 +60,14 @@ axios.interceptors.response.use(
                     // 返回 401 清除token信息并跳转到登录页面
                     // store.commit('LOGOUT')
                     Message.error('登录已失效，请重新登录')
+
                     setTimeout(function () {
-                        router.replace({
-                            path: '/login',
-                            // 登录成功后跳入浏览的当前页面
-                            query: { redirect: router.currentRoute.fullPath },
-                        })
+                        // router.replace({
+                        //     path: '/login',
+                        //     // 登录成功后跳入浏览的当前页面
+                        //     query: { redirect: router.currentRoute.fullPath },
+                        // })
+                        store.commit("logout", router.currentRoute.fullPath)
                     }, 1500)
                     break
                 case 402:
@@ -73,19 +75,22 @@ axios.interceptors.response.use(
                     Message.error('无权限操作')
                     return new Promise(() => { }) //外部不会再处理
                     break
+                case 200:
+                    if (response.headers['token']) {
+                        store.commit('setToken', response.headers['token'])
+                    }
+                    break;
             }
         }
-        return response
+        return response.data
     },
     (err) => {
-        var requestUrl = err.response.config.url
-        var length = requestUrl.indexOf('?') == -1 ? requestUrl.length : requestUrl.indexOf('?');
-        if (!apiConfig.noneLoadingList.includes(requestUrl.substring(0, length))) {
-            store.commit("endLoading");
-        }
+        console.log(err);
+        console.log(err.message);
+        console.log(err.response);
         // 关闭loading
         // 提示异常
-        let errMessage = ''
+        let errMessage = '系统错误，请稍后再试'
         if (err && err.response) {
             switch (err.response.status) {
                 case 400:
@@ -137,7 +142,7 @@ export default {
             axios
                 .get(url, { params })
                 .then((res) => {
-                    resolve(res.data)
+                    resolve(res)
                 })
                 .catch((error) => {
                     reject(error)
@@ -150,7 +155,7 @@ export default {
             axios
                 .post(url, params)
                 .then((res) => {
-                    resolve(res.data)
+                    resolve(res)
                 })
                 .catch((error) => {
                     reject(error)
@@ -163,7 +168,7 @@ export default {
             axios
                 .delete(url, params)
                 .then((res) => {
-                    resolve(res.data)
+                    resolve(res)
                 })
                 .catch((error) => {
                     reject(error)
@@ -176,7 +181,7 @@ export default {
             axios
                 .put(url, params)
                 .then((res) => {
-                    resolve(res.data)
+                    resolve(res)
                 })
                 .catch((error) => {
                     reject(error)

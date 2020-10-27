@@ -51,7 +51,7 @@ export default {
     data () {
         return {
             defaultProps: {
-                children: 'children',
+                children: 'childMenus',
                 label: 'menuName'
             }
         }

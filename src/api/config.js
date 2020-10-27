@@ -10,7 +10,7 @@ export default {
     // 参数
     data: {},
     // 设置超时时间
-    timeout: 10000,
+    timeout: 8000,
     // 返回数据类型
     responseType: 'json',
     noneLoadingList: ['api/menu', 'api/usermenu']

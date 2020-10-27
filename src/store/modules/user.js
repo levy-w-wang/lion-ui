@@ -39,6 +39,7 @@ export default {
     },
     mutations: {
         setToken (state, token, flag = true) {
+            state.token = token;
             if (flag) {
                 localStorage.setItem('token', token)
             } else {
@@ -47,15 +48,13 @@ export default {
         },
         setUserInfo (state, userInfo, flag = true) {
             state.userInfo = userInfo
-            state.token = userInfo.token
             if (flag) {
                 localStorage.setItem('user', JSON.stringify(userInfo))
             } else {
                 sessionStorage.setItem('user', JSON.stringify(userInfo))
             }
-            this.commit('setToken', userInfo.token, flag)
         },
-        logout (state) {
+        logout (state, redirect = '/') {
             // 退出时重置 storage 重置路由
             localStorage.clear()
             sessionStorage.clear()
@@ -69,7 +68,7 @@ export default {
             router.push({
                 path: '/login',
                 query: {
-                    redirect: '/',
+                    redirect: redirect,
                 },
             })
         },

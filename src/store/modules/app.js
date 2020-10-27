@@ -1,4 +1,4 @@
-import { getMenu } from '@/api/modules/system'
+import menu from '@/api/modules/menu'
 import NProgress from 'nprogress'
 import { Loading } from 'element-ui'
 
@@ -14,6 +14,7 @@ export default {
         menuTree: [],
         menuLoad: false, //菜单是否已加载状态避免重复加载，刷新又将变为false。
         loading: false,/**加载状态 */
+        loadingTimer: null,/**请求异常 timer关闭 补漏 */
         loadingCount: 0,/**加载个数 */
     },
     getters: {
@@ -56,14 +57,23 @@ export default {
         /**开始加载 */
         startLoading (state) {
             state.loadingCount++
-            if (!this.loading) {
+            if (!state.loading) {
                 NProgress.start()/**请求进度条-开始 */
-                this.loading = Loading.service({
+                state.loading = Loading.service({
                     lock: true,
+                    fullscreen: true,
                     text: 'Loading',
                     spinner: 'el-icon-loading',
-                    background: 'rgba(0, 0, 0, 0.8)'
+                    background: 'rgba(0, 0, 0, 0.5)'
                 })
+                state.timer = setTimeout(() => {
+                    if (state.loading) {
+                        state.loading.close()
+                        state.loading = null
+                        state.requestCount = 0
+                        NProgress.done() /**请求进度条-结束 */
+                    }
+                }, 8000)
             }
         },
         /**结束加载 */
@@ -71,36 +81,21 @@ export default {
             state.loadingCount--
             if (state.loadingCount <= 0) {
                 state.loadingCount = 0
-                if (this.loading) {
+                if (state.timer) {
+                    clearTimeout(state.timer)
+                }
+                if (state.loading) {
                     NProgress.done() /**请求进度条-结束 */
-                    this.loading.close()
-                    this.loading = false
+                    state.loading.close()
+                    state.loading = false
                 }
             }
         },
     },
     actions: {
-        // haveArg({ commit }, arg) {
-        //     return new Promise((resolve, reject) => {
-        //       func(arg)
-        //         .then(res => {
-        //           if (res.code === 0) {
-        //             if (res.data.success) {
-        //               commit('xxx', res.data.xxx)
-        //             } else {
-        //              xxx
-        //             }
-        //             resolve(res)
-        //           }
-        //         })
-        //         .catch(error => {
-        //           reject(error)
-        //         })
-        //     })
-        //   },
-        getMenuTree ({ commit }, username) {
+        getMenuTree ({ commit }) {
             return new Promise((resolve, reject) => {
-                getMenu(username)
+                menu.getMenutree()
                     .then((res) => {
                         if (res.code === 200) {
                             if (res.success) {

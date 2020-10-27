@@ -3,7 +3,6 @@ import VueRouter from 'vue-router'
 import login from '@/views/login'
 import store from '@/store'
 import NProgress from 'nprogress'
-import { getMenu } from '@/api/modules/system'
 
 Vue.use(VueRouter)
 const originalPush = VueRouter.prototype.push
@@ -125,11 +124,7 @@ router.beforeEach(async (to, from, next) => {
                 next();
                 return;
             } else {
-                console.log(user.username);
-                const menu = await store.dispatch(
-                    'getMenuTree',
-                    user.username
-                )
+                const menu = await store.dispatch('getMenuTree')
                 console.log(menu);
                 // 加载动态菜单和路由
                 addDynamicMenuRoute(menu);
@@ -186,8 +181,8 @@ function addDynamicMenuRoute (menuData) {
 function addDynamicRoutes (menuList = [], routes = []) {
     var temp = [];
     for (var i = 0; i < menuList.length; i++) {
-        if (menuList[i].children && menuList[i].children.length >= 1) {
-            temp = temp.concat(menuList[i].children);
+        if (menuList[i].childMenus && menuList[i].childMenus.length >= 1) {
+            temp = temp.concat(menuList[i].childMenus);
         } else if (menuList[i].url && /\S/.test(menuList[i].url)) {
             //将第一个斜杠去掉
             menuList[i].url = menuList[i].url.replace(/^\//, "");
@@ -199,7 +194,8 @@ function addDynamicRoutes (menuList = [], routes = []) {
                 meta: {
                     title: menuList[i].menuName,
                     icon: menuList[i].icon,
-                    index: menuList[i].menuId
+                    index: menuList[i].menuId,
+                    perms: menuList[i].buttonPerms
                 }
             };
             try {

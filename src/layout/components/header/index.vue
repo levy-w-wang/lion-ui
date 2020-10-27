@@ -127,12 +127,14 @@ export default {
             window.open(url)
         },
         loginOut () {
-            this.$confirm('确认退出吗?', '提示', {
-                type: 'warning',
-            })
+            this.$confirm('确认退出吗?', '提示', { type: 'warning', })
                 .then(() => {
-                    this.$store.commit('logout')
-                    // this.$store.commit('resetMenu')
+                    this.$api.user.logout().then(res => {
+                        console.log(res);
+                        if (res && res.code == 200) {
+                            this.$store.commit('logout')
+                        }
+                    })
                 })
                 .catch(() => { })
         },

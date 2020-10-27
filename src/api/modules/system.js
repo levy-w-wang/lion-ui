@@ -1,10 +1,11 @@
 import axios from '@/api/axiosHttp'
 
-export const getMenu = (username) => {
-    if (username == 'user') {
-        return axios.Get('api/usermenu')
-    }
-    else {
-        return axios.Get('api/menu')
-    }
+// export const getCaptcha = () => {
+//     return axios.Get('/api/system/captcha');
+// }
+const system = {
+    getCaptcha () {
+        return axios.Get('/api/system/captcha');
+    },
 }
+export default system;
