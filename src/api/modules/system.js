@@ -4,6 +4,7 @@ import axios from '@/api/axiosHttp'
 //     return axios.Get('/api/system/captcha');
 // }
 const system = {
+    /**获取验证码 */
     getCaptcha () {
         return axios.Get('/api/system/captcha');
     },

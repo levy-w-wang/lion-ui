@@ -81,6 +81,9 @@ axios.interceptors.response.use(
                     }
                     break;
             }
+            if (response.data.code !== 200 && response.data.message) {
+                Message.error(response.data.message)
+            }
         }
         return response.data
     },
@@ -90,7 +93,7 @@ axios.interceptors.response.use(
         console.log(err.response);
         // 关闭loading
         // 提示异常
-        let errMessage = '系统错误，请稍后再试'
+        let errMessage = err.message
         if (err && err.response) {
             switch (err.response.status) {
                 case 400:

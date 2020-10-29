@@ -67,11 +67,9 @@ export default {
                     background: 'rgba(0, 0, 0, 0.5)'
                 })
                 state.timer = setTimeout(() => {
+                    console.log(state);
                     if (state.loading) {
-                        state.loading.close()
-                        state.loading = null
-                        state.requestCount = 0
-                        NProgress.done() /**请求进度条-结束 */
+                        this.commit("endLoading")
                     }
                 }, 8000)
             }

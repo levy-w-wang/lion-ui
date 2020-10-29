@@ -48,12 +48,17 @@
                     </el-row>
                 </el-form-item>
                 <el-form-item style="width:100%;">
-
                     <el-button type="primary"
                                style="width: 100%; background: #19b9e7;"
                                @click.native.prevent="login"
                                :loading="logining">登 录</el-button>
                 </el-form-item>
+                <el-link @click="$router.push('/retrievepwd')"
+                         class="to_link"
+                         style="float:left">忘记密码</el-link>
+                <el-link @click="$router.push('/register')"
+                         class="to_link"
+                         style="float:right">注册</el-link>
             </el-form>
         </div>
     </div>
@@ -90,24 +95,23 @@ export default {
                     this.$api.user.login(this.loginForm).then((res) => {
                         if (res.data && res.success) {
                             this.$store.commit('setUserInfo', res.data)
-                            this.$message({
-                                type: 'success',
-                                message: '登录成功',
-                                duration: 800,
-                            })
-
                             let redirect = '/'
                             if (this.$route.query.redirect !== undefined) {
                                 redirect = this.$route.query.redirect
                             }
                             setTimeout(() => {
-                                this.logining = false
-                                this.$router.push(redirect)
                                 if (this.notifyObj) {
                                     this.notifyObj.close()
                                 }
                                 this.notifyObj = null
                             }, 800)
+                            this.logining = false
+                            this.$message({
+                                type: 'success',
+                                message: '登录成功',
+                                duration: 800,
+                            })
+                            this.$router.push(redirect)
                         } else {
                             this.logining = false
                             this.getCaptcha()
@@ -142,6 +146,7 @@ export default {
         if (this.$store.state.app.mainTabsActiveName != '') {
             window.location.reload()
         }
+        this.getCaptcha();
     },
     //可在这发起后端请求，拿回数据，配合路由钩子做一些事情；可对DOM 进行操作
     mounted () {
@@ -151,7 +156,6 @@ export default {
             duration: 4000,
             iconClass: 'el-icon-s-opportunity',
         })
-        this.getCaptcha();
     },
 }
 </script>
@@ -206,5 +210,11 @@ $inputHeight: 48px;
     margin: 10px auto;
     width: 380px;
     padding: 35px 35px 15px 35px;
+}
+.to_link {
+    font-size: 14px;
+    color: #38f !important;
+    display: block;
+    text-decoration: none;
 }
 </style>

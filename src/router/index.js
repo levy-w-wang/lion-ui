@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import login from '@/views/login'
+import register from '@/views/other/register'
+import retrievepwd from '@/views/other/retrievepwd'
 import store from '@/store'
 import NProgress from 'nprogress'
 
@@ -52,6 +54,22 @@ const routes = [
         }
     },
     {
+        path: '/register',
+        name: 'register',
+        component: register,
+        meta: {
+            title: "注册"
+        }
+    },
+    {
+        path: '/retrievepwd',
+        name: 'retrievepwd',
+        component: retrievepwd,
+        meta: {
+            title: '找回密码'
+        }
+    },
+    {
         path: '/notfound',
         name: 'notfound',
         component: () => import('@/views/notfound'),
@@ -91,7 +109,7 @@ export function resetRouter () {
 router.afterEach(() => {
     NProgress.done()/**请求进度条-结束 */
 })
-const WhiteListRouter = ['/login', '/notfound'] // 路由白名单
+const WhiteListRouter = ['/login', '/notfound', '/register', '/retrievepwd'] // 路由白名单
 //导航守卫  路由开始前
 router.beforeEach(async (to, from, next) => {
     NProgress.start()/**请求进度条-开始 */
@@ -105,9 +123,10 @@ router.beforeEach(async (to, from, next) => {
             next()
         }
     } else {
+        let routerIndex = WhiteListRouter.indexOf(to.path);
         if (!hasAuth) {
             //没登录的情况下  访问的是否是白名单
-            if (WhiteListRouter.indexOf(to.path) !== -1) {
+            if (routerIndex !== -1) {
                 next()
             } else {
                 next({
@@ -119,7 +138,7 @@ router.beforeEach(async (to, from, next) => {
             }
         }
         else {
-            if (store.state.app.menuLoad) {
+            if (store.state.app.menuLoad || routerIndex !== -1) {
                 // 已经加载过路由了
                 next();
                 return;

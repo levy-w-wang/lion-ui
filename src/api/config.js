@@ -13,5 +13,5 @@ export default {
     timeout: 8000,
     // 返回数据类型
     responseType: 'json',
-    noneLoadingList: ['api/menu', 'api/usermenu']
+    noneLoadingList: ['/api/menu/menutree', '/api/system/captcha']
 }

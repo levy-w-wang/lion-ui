@@ -4,6 +4,7 @@ import router from './router'
 import store from './store'
 import './plugins/element.js'
 import api from '@/api'
+import bus from '@/Bus'
 import '@/assets/styles/base.scss'
 import PaginationFooter from '@/components/PaginationFooter'
 import NProgress from 'nprogress'
@@ -17,6 +18,7 @@ Vue.config.productionTip = false
 // Vue.prototype.$ELEMENT = { size: 'medium', zIndex: 3000 }
 
 Vue.prototype.$api = api
+Vue.prototype.$bus = bus
 
 /**进度环显示隐藏 */
 // NProgress.configure({ showSpinner: false });
