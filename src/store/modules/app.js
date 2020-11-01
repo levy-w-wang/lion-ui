@@ -8,6 +8,7 @@ export default {
         isCollapse: false,
         // 访问页集合
         mainTabs: [],
+        mainPerms: [],
         // 当前访问页名
         mainTabsActiveName: '',
         themeColor: '#545c64',
@@ -24,6 +25,9 @@ export default {
         menuLoad: (state) => {
             return state.menuLoad
         },
+        mainPerms: (state) => {
+            return state.mainPerms
+        }
     },
     mutations: {
         toggleCollapse (state) {
@@ -31,6 +35,9 @@ export default {
         },
         updateMainTabs (state, tabs) {
             state.mainTabs = tabs
+        },
+        updateMainPerms (state, perms) {
+            state.mainPerms = perms
         },
         updateMainTabsActiveName (state, name) {
             state.mainTabsActiveName = name

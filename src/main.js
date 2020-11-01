@@ -20,6 +20,22 @@ Vue.config.productionTip = false
 Vue.prototype.$api = api
 Vue.prototype.$bus = bus
 
+/**按钮是否显示 */
+Vue.directive('perms', {
+    inserted (el, binding, vnode) {
+        const { value } = binding // 取出指令的值，指的是v-perms="'新增'"中的 新增 这个值 
+        const perms = store.getters && store.getters.mainPerms // 从store中取出储存好的后端给的按钮权限 
+        if (value && value.length > 0) { // 判断value是否有值，类型是否正确 
+            const hasPermission = perms.includes(value);
+            if (!hasPermission) { // 如果没有权限就移除这个按钮元素 
+                el.parentNode && el.parentNode.removeChild(el)
+            }
+        } else { // 类型错误，抛出异常 
+            throw new Error(`need perms! Like v-perms="'新增'"`)
+        }
+    }
+})
+
 /**进度环显示隐藏 */
 // NProgress.configure({ showSpinner: false });
 // Vue.directive('title', {

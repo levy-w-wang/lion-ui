@@ -3,6 +3,7 @@
     <div>
         <div class="top-div-button">
             <el-button type="primary"
+                       v-perms="'新增'"
                        @click="dialogVisible = true">新增用户</el-button>
         </div>
         <el-form :inline="true"

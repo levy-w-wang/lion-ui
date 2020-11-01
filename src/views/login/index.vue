@@ -112,13 +112,14 @@ export default {
                                 duration: 800,
                             })
                             this.$router.push(redirect)
-                        } else {
+                        }
+                        else {
                             this.logining = false
                             this.getCaptcha()
-                            this.$message({
-                                type: 'error',
-                                message: res.message,
-                            })
+                            // this.$message({
+                            //     type: 'error',
+                            //     message: res.message,
+                            // })
                         }
                     })
                 } else {

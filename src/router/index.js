@@ -214,7 +214,7 @@ function addDynamicRoutes (menuList = [], routes = []) {
                     title: menuList[i].menuName,
                     icon: menuList[i].icon,
                     index: menuList[i].menuId,
-                    perms: menuList[i].buttonPerms
+                    perms: menuList[i].buttonPerms.map(obj => { return obj.menuName })
                 }
             };
             try {

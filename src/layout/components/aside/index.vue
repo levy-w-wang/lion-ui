@@ -73,9 +73,12 @@ export default {
                     name: route.name,
                     title: route.meta.title,
                     icon: route.meta.icon,
+                    perms: route.meta.perms || [],
                 }
                 this.mainTabs = this.mainTabs.concat(tab)
             }
+            //存储当前访问页-访问者有的权限
+            this.$store.commit('updateMainPerms', tab.perms)
             this.mainTabsActiveName = tab.name
             //解决刷新后，无法定位到当前打开菜单栏
             this.$nextTick(() => {
