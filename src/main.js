@@ -15,7 +15,7 @@ Vue.use(VueWechatTitle)
 
 Vue.component("pagination-footer", PaginationFooter);
 Vue.config.productionTip = false
-// Vue.prototype.$ELEMENT = { size: 'medium', zIndex: 3000 }
+Vue.prototype.$ELEMENT = { size: 'small', zIndex: 3000 }
 
 Vue.prototype.$api = api
 Vue.prototype.$bus = bus

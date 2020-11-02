@@ -12,8 +12,8 @@ axios.defaults.baseURL = apiConfig.baseURL
 // 请求拦截器
 axios.interceptors.request.use(
     (config) => {
-        var length = config.url.indexOf('?') == -1 ? config.url.length : config.url.indexOf('?');
-        if (!apiConfig.noneLoadingList.includes(config.url.substring(0, length))) {
+        var url = config.url.indexOf('?') == -1 ? config.url : config.url.substring(0, config.url.indexOf('?'));
+        if (!apiConfig.noneLoadingList.includes(url)) {
             store.commit("startLoading");
         }
         // 触发loading效果
@@ -44,8 +44,8 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
     (response) => {
         var requestUrl = response.config.url;
-        var length = requestUrl.indexOf('?') == -1 ? requestUrl.length : requestUrl.indexOf('?');
-        if (!apiConfig.noneLoadingList.includes(requestUrl.substring(0, length))) {
+        var url = requestUrl.indexOf('?') == -1 ? requestUrl : requestUrl.substring(0, requestUrl.indexOf('?'));
+        if (!apiConfig.noneLoadingList.includes(url)) {
             store.commit("endLoading");
         }
         // 关闭loading
