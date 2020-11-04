@@ -2,7 +2,7 @@
 <template>
     <div>
         <el-row class="custom-tree-node"
-                style="padding-left: 40px;background-color: #9b9b9b;">
+                style="padding-left: 40px;background-color: #d7f8f5;">
             <el-col :span="2">
                 <span>菜单ID</span>
             </el-col>
@@ -73,13 +73,17 @@
                     <el-button type="text"
                                class="btn_delete"
                                @click="deleteMenu(data,node)">删除</el-button>
+                    <el-button type="text"
+                               class="btn_edit"
+                               @click="assignMenu(data,true)">分配</el-button>
+                    <el-button type="text"
+                               class="btn_delete"
+                               @click="assignMenu(data,false)">取消分配</el-button>
                 </el-col>
             </el-row>
         </el-tree>
         <el-button type="primary"
-                   @click="addMenu(null,null)">新增</el-button>
-        <el-button @click="getCheckedNodes">通过 node 获取</el-button>
-        <el-button @click="getCheckedKeys">通过 key 获取</el-button>
+                   @click="addMenu()">新增</el-button>
 
         <el-drawer title="菜单按钮信息"
                    :visible.sync="drawerButton"
@@ -106,7 +110,7 @@
                         <template slot-scope="scope">{{scope.row.deleted}}</template>
                     </el-table-column>
                     <el-table-column label="操作"
-                                     width="120">
+                                     width="200">
                         <template slot-scope="scope">
                             <el-button type="text"
                                        class="btn_edit"
@@ -114,6 +118,12 @@
                             <el-button type="text"
                                        class="btn_delete"
                                        @click="deleteButtonPerm(scope.row)">删除</el-button>
+                            <el-button type="text"
+                                       class="btn_edit"
+                                       @click="assignMenu(scope.row,true)">分配</el-button>
+                            <el-button type="text"
+                                       class="btn_delete"
+                                       @click="assignMenu(scope.row,false)">取消分配</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -146,7 +156,7 @@
                      v-show="!isButton">
                     <el-form-item label="资源路径:">
                         <el-input v-model="operatePerm.url"
-                                  placeholder="页面才需要"></el-input>
+                                  placeholder="页面才需要，区分大小写"></el-input>
                     </el-form-item>
                     <el-form-item label="图标:">
                         <el-input v-model="operatePerm.icon"
@@ -176,23 +186,6 @@
                                   placeholder="排序索引"></el-input>
                     </el-form-item>
                 </div>
-                <div class="perm_warpper">
-                    <el-form-item label="分配使用:">
-                        <el-select v-model="operatePerm.assignAdmin"
-                                   style="width: 190px;"
-                                   placeholder="默认不操作">
-                            <el-option label="不操作"
-                                       value="1">
-                            </el-option>
-                            <el-option label="分配"
-                                       value="2">
-                            </el-option>
-                            <el-option label="取消分配"
-                                       value="3">
-                            </el-option>
-                        </el-select>
-                    </el-form-item>
-                </div>
             </el-form>
             <div slot="footer">
                 <el-button @click="permDialogVisible = false">取 消</el-button>
@@ -208,16 +201,16 @@ let id = 1000;
 export default {
     data () {
         return {
-            menuTree: null,
+            menuTree: [],
             permDialogVisible: false,
             drawerButton: false,
             isButton: false,
             isUpdate: false,
             currentPage: {},
-            currentNode: null,
+            currentData: null,
+            operateType: -1, // 1添加按钮 2添加页面 3更新按钮 4更新页面  5删除按钮 6删除页面
             operatePerm: {
                 isUpdate: false,
-                assignAdmin: "1",
             },
             defaultProps: {
                 children: 'childMenus',
@@ -231,12 +224,11 @@ export default {
     methods: {
         btnPermsInfo (row) {
             this.drawerButton = true;
-            console.log(row);
             this.currentPage = row;
         },
         addButtonPerm () {
+            this.operateType = 1;
             this.isButton = true;
-            this.isUpdate = false;
             this.operatePerm = {
                 parentMenuId: this.currentPage.menuId,
                 type: 2,
@@ -246,32 +238,43 @@ export default {
             }
             this.permDialogVisible = true;
         },
-        addMenu (data, node) {
-            this.isButton = false;
-            this.isUpdate = false;
+        deleteButtonPerm (data) {
+            this.$confirm('此操作将永久删除该按钮权限，是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.$api.menu.deleteMenu(data.menuId).then(res => {
+                    if (res.code == 200) {
+                        this.$message.success("删除成功");
+                        var buttonPerms = this.currentPage.buttonPerms;
+                        const index = buttonPerms.findIndex(d => d.menuId === data.menuId);
+                        buttonPerms.splice(index, 1);
+                    }
+                })
+            }).catch(() => { });
+        },
+        addMenu (data) {
+            this.operateType = 2;
             this.operatePerm = {
                 parentMenuId: '',
                 type: 1,
                 level: 1,
                 deleted: false,
                 orderIndex: 0,
-                menuId: '',
+                menuId: 'Mx',
+                buttonPerms: [],
+                childMenus: []
             }
             if (data) {
-                console.log(data);
+                this.currentData = data;
                 this.operatePerm.parentMenuId = data.menuId
                 this.operatePerm.level = data.level + 1
                 this.operatePerm.menuId = data.menuId + 'xx'
             }
-            // const newChild = { menuId: id++, menuName: 'testtest', children: [] };
-            // if (!data.children) {
-            //     this.$set(data, 'children', []);
-            // }
-            // data.children.push(newChild);
             this.permDialogVisible = true;
         },
         updateMenu (data, node) {
-            console.log(data);
             this.isButton = node == null;
             this.isUpdate = true;
             this.operatePerm = data;
@@ -279,33 +282,88 @@ export default {
             this.permDialogVisible = true;
         },
         deleteMenu (data, node) {
-            console.log(node)
-            console.log(data)
-            // const parent = node.parent;
-            // const children = parent.data.children || parent.data;
-            // const index = children.findIndex(d => d.menuId === data.menuId);
-            // children.splice(index, 1);
+            this.$confirm('此操作将永久删除该菜单，请先确保它没有子菜单, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                if (data.buttonPerms.length > 0 || data.childMenus.length > 0) {
+                    this.$message.warning("还存在按钮权限或页面未删除，请先删除");
+                }
+                else {
+                    this.$api.menu.deleteMenu(data.menuId).then(res => {
+                        if (res.code == 200) {
+                            this.$message.success("删除成功");
+                            const parent = node.parent;
+                            const children = parent.data.childMenus || parent.data;
+                            const index = children.findIndex(d => d.menuId === data.menuId);
+                            children.splice(index, 1);
+                        }
+                    })
+                }
+            }).catch(() => { });
         },
         permSubmit () {
-            console.log(this.operatePerm)
+            this.$api.menu.addmenu(this.operatePerm).then(res => {
+                if (res.code == 200) {
+                    // 1添加按钮 2添加页面
+                    switch (this.operateType) {
+                        case 1:
+                            this.currentPage.buttonPerms.push(this.operatePerm);
+                            break;
+                        case 2:
+                            const newChild = this.operatePerm;
+                            let data = this.currentData;
+                            if (!data) {
+                                data = this.menuTree;
+                                data.push(newChild);
+                            }
+                            else {
+                                if (!data.childMenus) {
+                                    this.$set(data, 'childMenus', []);
+                                }
+                                data.childMenus.push(newChild);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    this.permDialogVisible = false;
+                    this.$message.success("操作成功")
+                }
+                this.isButton = false;
+                this.isUpdate = false;
+            })
         },
-        getCheckedNodes () {
-            console.log(this.$refs.tree.getCheckedNodes(false, true));
+        assignMenu (row, flag) {
+            let menuIdList = [];
+            this.getMenuId(row, menuIdList);
+            this.$api.menu.assignMenu({ menuIdList: menuIdList, type: flag }).then(res => {
+                if (res.code == 200) {
+                    this.$message.success("操作成功")
+                }
+            })
         },
-        getCheckedKeys () {
-            console.log(this.$refs.tree.getCheckedKeys());
-        },
+        getMenuId (data, list) {
+            list.push(data.menuId);
+            if (data.buttonPerms && data.buttonPerms.length > 0) {
+                data.buttonPerms.forEach(button => {
+                    this.getMenuId(button, list);
+                });
+            }
+            if (data.childMenus && data.childMenus.length > 0) {
+                data.childMenus.forEach(menu => {
+                    this.getMenuId(menu, list);
+                });
+            }
+        }
     },
     computed: {
-        // menuTree () {
-        //     return this.$store.state.app.menuTree
-        // }
     },
     created () {
         this.$api.menu.getMenuManage().then(res => {
             if (res.code == 200) {
                 this.menuTree = res.data
-                console.log(res.data);
             }
         })
     },

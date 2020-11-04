@@ -11,7 +11,7 @@ export default {
         mainPerms: [],
         // 当前访问页名
         mainTabsActiveName: '',
-        themeColor: '#545c64',
+        themeColor: '#3e4e5f',
         menuTree: [],
         menuLoad: false, //菜单是否已加载状态避免重复加载，刷新又将变为false。
         loading: false,/**加载状态 */

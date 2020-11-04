@@ -111,7 +111,10 @@ export default {
                                 message: '登录成功',
                                 duration: 800,
                             })
-                            this.$router.push(redirect)
+                            this.$router.push("/")
+                            setTimeout(() => {
+                                this.$router.push(redirect)
+                            }, 500)
                         }
                         else {
                             this.logining = false
