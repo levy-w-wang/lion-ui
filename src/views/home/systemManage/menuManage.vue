@@ -143,29 +143,29 @@
                      label-position="left">
                 <div class="perm_warpper">
                     <el-form-item label="资源ID:">
-                        <el-input v-model="operatePerm.menuId"
+                        <el-input v-model.trim="operatePerm.menuId"
                                   :disabled="isUpdate"
                                   placeholder="菜单按钮ID"></el-input>
                     </el-form-item>
                     <el-form-item label="资源名称:">
-                        <el-input v-model="operatePerm.menuName"
+                        <el-input v-model.trim="operatePerm.menuName"
                                   placeholder="资源名称"></el-input>
                     </el-form-item>
                 </div>
                 <div class="perm_warpper"
                      v-show="!isButton">
                     <el-form-item label="资源路径:">
-                        <el-input v-model="operatePerm.url"
+                        <el-input v-model.trim="operatePerm.url"
                                   placeholder="页面才需要，区分大小写"></el-input>
                     </el-form-item>
                     <el-form-item label="图标:">
-                        <el-input v-model="operatePerm.icon"
+                        <el-input v-model.trim="operatePerm.icon"
                                   placeholder="需要"></el-input>
                     </el-form-item>
                 </div>
                 <div class="perm_warpper">
                     <el-form-item label="父级ID:">
-                        <el-input v-model="operatePerm.parentMenuId"
+                        <el-input v-model.trim="operatePerm.parentMenuId"
                                   disabled
                                   placeholder="父级ID"></el-input>
                     </el-form-item>
@@ -275,6 +275,7 @@ export default {
             this.permDialogVisible = true;
         },
         updateMenu (data, node) {
+            this.operateType = node == null ? 3 : 4
             this.isButton = node == null;
             this.isUpdate = true;
             this.operatePerm = data;
@@ -306,7 +307,7 @@ export default {
         permSubmit () {
             this.$api.menu.addmenu(this.operatePerm).then(res => {
                 if (res.code == 200) {
-                    // 1添加按钮 2添加页面
+                    // 1添加按钮 2添加页面 3更新按钮 4更新页面
                     switch (this.operateType) {
                         case 1:
                             this.currentPage.buttonPerms.push(this.operatePerm);
@@ -330,9 +331,9 @@ export default {
                     }
                     this.permDialogVisible = false;
                     this.$message.success("操作成功")
+                    this.isButton = false;
+                    this.isUpdate = false;
                 }
-                this.isButton = false;
-                this.isUpdate = false;
             })
         },
         assignMenu (row, flag) {
