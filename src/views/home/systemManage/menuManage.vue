@@ -137,7 +137,8 @@
         <el-dialog title="权限控制"
                    :close-on-click-modal="false"
                    :visible.sync="permDialogVisible"
-                   width="600px">
+                   width="600px"
+                   :show-close="false">
             <el-form :model="operatePerm"
                      label-width="80px"
                      label-position="left">
@@ -188,7 +189,7 @@
                 </div>
             </el-form>
             <div slot="footer">
-                <el-button @click="permDialogVisible = false">取 消</el-button>
+                <el-button @click="permDialogClose">取 消</el-button>
                 <el-button type="primary"
                            @click="permSubmit">确 定</el-button>
             </div>
@@ -283,7 +284,7 @@ export default {
             this.permDialogVisible = true;
         },
         deleteMenu (data, node) {
-            this.$confirm('此操作将永久删除该菜单，请先确保它没有子菜单, 是否继续?', '提示', {
+            this.$confirm(`此操作将永久删除该菜单[${data.menuId}]，请先确保它没有子菜单, 是否继续?`, '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
@@ -336,14 +337,26 @@ export default {
                 }
             })
         },
+        permDialogClose () {
+            this.isButton = false;
+            this.isUpdate = false;
+            this.permDialogVisible = false
+        },
         assignMenu (row, flag) {
-            let menuIdList = [];
-            this.getMenuId(row, menuIdList);
-            this.$api.menu.assignMenu({ menuIdList: menuIdList, type: flag }).then(res => {
-                if (res.code == 200) {
-                    this.$message.success("操作成功")
-                }
-            })
+            let notifyMessage = flag ? `是否确认将当前菜单[${row.menuId}]及其子菜单分配给非系统管理员使用？` : `是否确认将当前菜单[${row.menuId}]及其子菜单取消分配给非系统管理员使用权限？`
+            this.$confirm(notifyMessage, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                let menuIdList = [];
+                this.getMenuId(row, menuIdList);
+                this.$api.menu.assignMenu({ menuIdList: menuIdList, type: flag }).then(res => {
+                    if (res.code == 200) {
+                        this.$message.success("操作成功")
+                    }
+                })
+            }).catch(() => { });
         },
         getMenuId (data, list) {
             list.push(data.menuId);
@@ -386,6 +399,10 @@ export default {
     font-size: 14px;
     height: 26px;
     line-height: 26px;
+}
+::v-deep .el-tree-node__content:hover {
+    background-color: #fcf8bd;
+    // color: #000;
 }
 ::v-deep .el-drawer__header {
     margin-bottom: 15px;
