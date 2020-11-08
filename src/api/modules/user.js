@@ -38,6 +38,54 @@ const user = {
         return axios.Post('/api/user/retrievepwd', params)
     },
 
+
+    //**************用户管理界面*************************/
+    /**
+     * 获取一览数据
+     * @param {*} pageSize 页大小
+     * @param {*} currentPage 页码
+     * @param {*} params 参数
+     */
+    userList (pageSize, currentPage, params) {
+        return axios.Get(`/api/user/page/${pageSize}/${currentPage}`, params)
+    },
+    /**
+     * 新增用户
+     * @param {*} params 
+       {
+          "userName": "string",
+          "email": "string",
+          "pwd": "string",
+          "roleIds": [
+            0
+          ]
+        }
+     */
+    addUser (params) {
+        return axios.Post('/api/user/add', params)
+    },
+    /**
+     * 修改用户
+     * @param {*} params 
+     {
+    "userId": "string",
+    "email": "string",
+    "roleIds": [
+      0
+    ]
+    }
+     */
+    modifyUser (params) {
+        return axios.Put('/api/user/modify', params)
+    },
+    /**
+     * 删除用户
+     * @param {int} uid 
+     */
+    deleteUser (uid) {
+        return axios.Delete(`/api/user/remove/${uid}`)
+    }
+    //**************用户管理界面*************************/
 }
 
 export default user;

@@ -3,56 +3,55 @@
     <div>
         <div class="top-div-button">
             <el-button type="primary"
-                       v-perms="'新增'"
+                       v-perms="'u_add'"
                        @click="dialogVisible = true">新增用户</el-button>
         </div>
         <el-form :inline="true"
                  :model="searchForm"
                  class="demo-form-inline search-form">
-            <el-form-item label="用户名">
-                <el-input v-model="searchForm.user"
+            <el-form-item label="用户名:">
+                <el-input v-model="searchForm.userName"
                           placeholder="用户名"></el-input>
             </el-form-item>
-            <el-form-item label="手机号">
-                <el-input v-model="searchForm.phone"
-                          placeholder="手机号">
+            <el-form-item label="邮箱:">
+                <el-input v-model="searchForm.email"
+                          placeholder="邮箱">
                 </el-input>
             </el-form-item>
             <el-form-item>
                 <el-button type="primary"
-                           @click="onSubmit">查询</el-button>
+                           @click="searchData">查询</el-button>
             </el-form-item>
         </el-form>
 
         <el-table :data="tableData"
                   style="width: 100%">
-            <el-table-column label="日期"
-                             width="180">
-                <template slot-scope="scope">
-                    <i class="el-icon-time"></i>
-                    <span style="margin-left: 10px">{{ scope.row.date }}</span>
-                </template>
+            <el-table-column label="序号"
+                             align="center"
+                             type="index"
+                             width="50">
             </el-table-column>
-            <el-table-column label="姓名"
-                             width="180">
+            <el-table-column label="登录名"
+                             prop="userName">
+            </el-table-column>
+            <el-table-column label="邮件"
+                             prop="email">
+            </el-table-column>
+            <el-table-column label="关联角色">
                 <template slot-scope="scope">
-                    <el-popover trigger="hover"
-                                placement="top">
-                        <p>姓名: {{ scope.row.name }}</p>
-                        <p>住址: {{ scope.row.address }}</p>
-                        <div slot="reference"
-                             class="name-wrapper">
-                            <el-tag size="medium">{{ scope.row.name }}</el-tag>
-                        </div>
-                    </el-popover>
+                    {{roleNameStr(scope.row.roleNames)}}
                 </template>
             </el-table-column>
             <el-table-column label="操作"
                              align="right">
                 <template slot-scope="scope">
                     <el-button size="mini"
+                               v-perms="'u_edit'"
+                               v-if="scope.row.userId != $store.getters.userInfo.userId"
                                @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
                     <el-button size="mini"
+                               v-perms="'u_delete'"
+                               v-if="scope.row.userId != $store.getters.userInfo.userId"
                                type="danger"
                                @click="handleDelete(scope.$index, scope.row)">删除</el-button>
                 </template>
@@ -68,24 +67,49 @@
 
         <el-dialog title="新增用户"
                    :visible.sync="dialogVisible"
-                   width="25%">
+                   width="420px">
             <el-form :model="userData"
+                     label-position="right"
                      ref="userDataForm"
                      label-width="100px"
                      class="demo-ruleForm">
-                <el-form-item label="姓名"
+                <el-form-item label="登录名："
                               prop="name"
-                              :rules="[{ required: true, message: '姓名不能为空'},]">
+                              :rules="[{ required: true, message: '登录名不能为空'},]">
                     <el-input type="text"
-                              v-model="userData.name"
+                              v-model="userData.userName"
                               autocomplete="off"></el-input>
                 </el-form-item>
-                <el-form-item label="地址"
-                              prop="address"
-                              :rules="[{ required: true, message: '地址不能为空'},]">
+                <el-form-item label="邮箱："
+                              prop="email"
+                              :rules="[{ required: true, message: '邮箱不能为空'},]">
                     <el-input type="text"
-                              v-model="userData.address"
+                              v-model="userData.email"
+                              placeholder="找回密码的邮箱"
                               autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="登录密码："
+                              prop="pwd"
+                              :rules="[{ required: true, message: '密码不能为空'},]">
+                    <el-input type="text"
+                              v-model="userData.pwd"
+                              autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="角色："
+                              prop="roleIds"
+                              :rules="[{ required: true, message: '密码不能为空'},]">
+                    <el-select v-model="userData.roleIds"
+                               style="width:100%"
+                               multiple
+                               clearable
+                               filterable
+                               placeholder="请选择">
+                        <!-- <el-option v-for="item in options"
+                                   :key="item.value"
+                                   :label="item.label"
+                                   :value="item.value">
+                        </el-option> -->
+                    </el-select>
                 </el-form-item>
             </el-form>
             <span slot="footer"
@@ -106,12 +130,12 @@
 export default {
     data () {
         return {
-            total: 100,
+            total: 0,
             searchForm: {
                 currentPage: 1,
                 pageSize: 20,
-                user: '',
-                phone: ''
+                userName: null,
+                email: null
             },
             dialogVisible: false,
             userData: {
@@ -119,34 +143,31 @@ export default {
                 name: '',
                 address: ''
             },
-            tableData: [{
-                date: '2016-05-02',
-                name: '王小虎',
-                address: '上海市普陀区金沙江路 1518 弄'
-            }, {
-                date: '2016-05-04',
-                name: '王小虎',
-                address: '上海市普陀区金沙江路 1517 弄'
-            }, {
-                date: '2016-05-01',
-                name: '王小虎',
-                address: '上海市普陀区金沙江路 1519 弄'
-            }, {
-                date: '2016-05-03',
-                name: '王小虎',
-                address: '上海市普陀区金沙江路 1516 弄'
-            }],
+            tableData: [],
         };
     },
     //引入组件 
     components: {},
     // 方法
     methods: {
-        onSubmit () {
-            this.searchData()
-        },
         searchData () {
             console.log(this.searchForm);
+            console.log(this.$store.getters.userInfo);
+            this.$api.user.userList(this.searchForm.pageSize, this.searchForm.currentPage, this.searchForm).then(res => {
+                if (res.code == 200) {
+                    this.tableData = res.data.data
+                    this.total = res.data.recordTotal
+                    this.searchForm.currentPage = res.data.currentPage
+                    this.searchForm.pageSize = res.data.pageSize
+                }
+                console.log(res);
+            })
+        },
+        roleNameStr (roleNames) {
+            if (roleNames instanceof Array) {
+                return roleNames.join(',')
+            }
+            return ''
         },
         handleEdit (index, row) {
             console.log(index, row);
@@ -176,7 +197,9 @@ export default {
     //未挂载DOM,不能访问ref为空数组
     //可在这结束loading，还做一些初始化，实现函数自执行,
     //可以对data数据进行操作，可进行一些请求，请求不易过多，避免白屏时间太长。
-    created () { },
+    created () {
+        this.searchData();
+    },
     //可在这发起后端请求，拿回数据，配合路由钩子做一些事情；可对DOM 进行操作
     mounted () { }
 }
