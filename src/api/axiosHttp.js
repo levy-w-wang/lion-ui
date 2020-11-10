@@ -59,7 +59,7 @@ axios.interceptors.response.use(
                 case 401:
                     // 返回 401 清除token信息并跳转到登录页面
                     // store.commit('LOGOUT')
-                    Message.error('登录已失效，请重新登录')
+                    // Message.error('登录已失效，请重新登录')
 
                     setTimeout(function () {
                         // router.replace({
@@ -72,8 +72,8 @@ axios.interceptors.response.use(
                     break
                 case 402:
                     //402无权限操作
-                    Message.error('无权限操作')
-                    return new Promise(() => { }) //外部不会再处理
+                    // Message.error('无权限操作')
+                    // return new Promise(() => { }) //外部不会再处理
                     break
                 case 200:
                     if (response.headers['token']) {
@@ -83,6 +83,7 @@ axios.interceptors.response.use(
             }
             if (response.data.code !== 200 && response.data.message) {
                 Message.error(response.data.message)
+                return new Promise(() => { })
             }
         }
         return response.data
