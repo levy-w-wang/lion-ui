@@ -1,41 +1,41 @@
 import axios from '@/api/axiosHttp'
 
 // export const login = (params) => {
-//     return axios.Post('/login', params)
+//     return axios.post('/login', params)
 // }
 
 const user = {
     /**登录 */
     login (params) {
-        return axios.Post('/api/user/login', params)
+        return axios.post('/api/user/login', params)
     },
     /**登出 */
     logout () {
-        return axios.Post('/api/user/logout')
+        return axios.post('/api/user/logout')
     },
     /**获取注册验证码 */
     registercaptcha (params) {
-        return axios.Get('/api/user/registercaptcha', params)
+        return axios.get('/api/user/registercaptcha', { data: params })
     },
     /**注册用户 */
     register (params) {
-        return axios.Post('/api/user/register', params)
+        return axios.post('/api/user/register', params)
     },
     /**是否存在 */
     exist (params) {
-        return axios.Get('/api/user/exist', params)
+        return axios.get('/api/user/exist', { data: params })
     },
     /**修改密码 */
     modifypwd (params) {
-        return axios.Put('/api/user/modifypwd', params)
+        return axios.put('/api/user/modifypwd', params)
     },
     /**发送找回密码验证码  body需email参数  json格式 */
     sendemailrestpwd (params) {
-        return axios.Post('/api/user/send-email-reset-pwd', params)
+        return axios.post('/api/user/send-email-reset-pwd', params)
     },
     /**找回密码 */
     retrievepwd (params) {
-        return axios.Post('/api/user/retrievepwd', params)
+        return axios.post('/api/user/retrievepwd', params)
     },
 
 
@@ -47,7 +47,7 @@ const user = {
      * @param {*} params 参数
      */
     userList (pageSize, currentPage, params) {
-        return axios.Get(`/api/user/page/${pageSize}/${currentPage}`, params)
+        return axios.get(`/api/user/page/${pageSize}/${currentPage}`, { data: params })
     },
     /**
      * 新增用户
@@ -62,7 +62,7 @@ const user = {
         }
      */
     addUser (params) {
-        return axios.Post('/api/user/add', params)
+        return axios.post('/api/user/add', params)
     },
     /**
      * 修改用户
@@ -76,14 +76,14 @@ const user = {
     }
      */
     modifyUser (params) {
-        return axios.Put('/api/user/modify', params)
+        return axios.put('/api/user/modify', params)
     },
     /**
      * 删除用户
      * @param {int} uid 
      */
     deleteUser (uid) {
-        return axios.Delete(`/api/user/remove/${uid}`)
+        return axios.delete(`/api/user/remove/${uid}`)
     }
     //**************用户管理界面*************************/
 }

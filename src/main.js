@@ -37,7 +37,7 @@ Vue.directive('perms', {
 })
 
 /**进度环显示隐藏 */
-// NProgress.configure({ showSpinner: false });
+NProgress.configure({ showSpinner: false });
 // Vue.directive('title', {
 //     //单个修改标题
 //     inserted: function(el, binding) {

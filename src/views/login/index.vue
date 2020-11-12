@@ -70,7 +70,7 @@ export default {
         return {
             logining: false,
             loginForm: {
-                userName: 'levy',
+                userName: 'levy1',
                 password: 'qwer1234',
                 captcha: '',
                 uuid: ''

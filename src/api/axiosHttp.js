@@ -59,8 +59,7 @@ axios.interceptors.response.use(
                 case 401:
                     // 返回 401 清除token信息并跳转到登录页面
                     // store.commit('LOGOUT')
-                    // Message.error('登录已失效，请重新登录')
-
+                    Message.error('登录已失效，请重新登录')
                     setTimeout(function () {
                         // router.replace({
                         //     path: '/login',
@@ -69,11 +68,12 @@ axios.interceptors.response.use(
                         // })
                         store.commit("logout", router.currentRoute.fullPath)
                     }, 1500)
+                    return new Promise(() => { })
                     break
                 case 402:
                     //402无权限操作
-                    // Message.error('无权限操作')
-                    // return new Promise(() => { }) //外部不会再处理
+                    Message.error('无权限操作')
+                    return new Promise(() => { }) //外部不会再处理
                     break
                 case 200:
                     if (response.headers['token']) {
@@ -83,7 +83,6 @@ axios.interceptors.response.use(
             }
             if (response.data.code !== 200 && response.data.message) {
                 Message.error(response.data.message)
-                return new Promise(() => { })
             }
         }
         return response.data
@@ -140,57 +139,4 @@ axios.interceptors.response.use(
         return new Promise(() => { })
     }
 )
-export default {
-    Get (url, params = {}) {
-        return new Promise((resolve, reject) => {
-            axios
-                .get(url, { params })
-                .then((res) => {
-                    resolve(res)
-                })
-                .catch((error) => {
-                    reject(error)
-                    //resolve(error)
-                })
-        })
-    },
-    Post (url, params = {}) {
-        return new Promise((resolve, reject) => {
-            axios
-                .post(url, params)
-                .then((res) => {
-                    resolve(res)
-                })
-                .catch((error) => {
-                    reject(error)
-                    //resolve(error)
-                })
-        })
-    },
-    Delete (url, params = {}) {
-        return new Promise((resolve, reject) => {
-            axios
-                .delete(url, params)
-                .then((res) => {
-                    resolve(res)
-                })
-                .catch((error) => {
-                    reject(error)
-                    //resolve(error)
-                })
-        })
-    },
-    Put (url, params = {}) {
-        return new Promise((resolve, reject) => {
-            axios
-                .put(url, params)
-                .then((res) => {
-                    resolve(res)
-                })
-                .catch((error) => {
-                    reject(error)
-                    //resolve(error)
-                })
-        })
-    },
-}
+export default axios;

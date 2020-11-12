@@ -67,7 +67,6 @@ export default {
             if (!state.loading) {
                 NProgress.start()/**请求进度条-开始 */
                 state.loading = Loading.service({
-                    lock: true,
                     fullscreen: true,
                     text: 'Loading',
                     spinner: 'el-icon-loading',

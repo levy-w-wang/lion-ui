@@ -132,7 +132,7 @@ export default {
                     this.$api.user.logout().then(res => {
                         console.log(res);
                         if (res && res.code == 200) {
-                            this.$store.commit('logout')
+                            this.$store.commit('logout', this.$route.fullPath)
                         }
                     })
                 })
@@ -163,6 +163,8 @@ export default {
 
 <style lang="scss" scoped>
 .header {
+    position: fixed;
+    z-index: 1050;
     padding-left: 0px !important;
     height: $header-height;
     line-height: $header-height;

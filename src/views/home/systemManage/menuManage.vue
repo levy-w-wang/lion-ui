@@ -150,16 +150,17 @@
                     </el-form-item>
                     <el-form-item label="资源名称:">
                         <el-input v-model.trim="operatePerm.menuName"
-                                  placeholder="资源名称"></el-input>
+                                  placeholder="资源名称,权限分配时显示"></el-input>
                     </el-form-item>
                 </div>
-                <div class="perm_warpper"
-                     v-show="!isButton">
+                <div class="perm_warpper">
                     <el-form-item label="资源路径:">
                         <el-input v-model.trim="operatePerm.url"
-                                  placeholder="页面才需要，区分大小写"></el-input>
+                                  style="width: 190px;"
+                                  placeholder="页面路径、按钮权限控制标识"></el-input>
                     </el-form-item>
-                    <el-form-item label="图标:">
+                    <el-form-item label="图标:"
+                                  v-show="!isButton">
                         <el-input v-model.trim="operatePerm.icon"
                                   placeholder="需要"></el-input>
                     </el-form-item>
@@ -338,9 +339,11 @@ export default {
             })
         },
         permDialogClose () {
-            this.isButton = false;
-            this.isUpdate = false;
             this.permDialogVisible = false
+            setTimeout(() => {
+                this.isButton = false;
+                this.isUpdate = false;
+            }, 500);
         },
         assignMenu (row, flag) {
             let notifyMessage = flag ? `是否确认将当前菜单[${row.menuId}]及其子菜单分配给非系统管理员使用？` : `是否确认将当前菜单[${row.menuId}]及其子菜单取消分配给非系统管理员使用权限？`

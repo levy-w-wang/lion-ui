@@ -12,10 +12,12 @@
 import user from '@/api/modules/user'
 import system from '@/api/modules/system'
 import menu from '@/api/modules/menu'
+import role from '@/api/modules/role'
 
 // 默认全部导出
 export default {
     user,
     system,
     menu,
+    role,
 }

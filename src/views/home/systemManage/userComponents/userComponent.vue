@@ -25,7 +25,7 @@
         </el-form>
 
         <el-table :data="tableData"
-                  style="width: 100%">
+                  style="width: 100%;min-height:450px">
             <el-table-column label="序号"
                              align="center"
                              type="index"
@@ -97,7 +97,7 @@
                 </el-form-item>
                 <el-form-item label="角色："
                               prop="roleIds"
-                              :rules="[{ required: true, message: '密码不能为空'},]">
+                              :rules="[{ required: true, message: '角色不能为空'},]">
                     <el-select v-model="userData.roleIds"
                                style="width:100%"
                                multiple
