@@ -47,7 +47,7 @@ const user = {
      * @param {*} params 参数
      */
     userList (pageSize, currentPage, params) {
-        return axios.get(`/api/user/page/${pageSize}/${currentPage}`, { data: params })
+        return axios.get(`/api/user/page/${pageSize}/${currentPage}`, { params: params })
     },
     /**
      * 新增用户
@@ -82,7 +82,7 @@ const user = {
      * 删除用户
      * @param {int} uid 
      */
-    deleteUser (uid) {
+    removeUser (uid) {
         return axios.delete(`/api/user/remove/${uid}`)
     }
     //**************用户管理界面*************************/

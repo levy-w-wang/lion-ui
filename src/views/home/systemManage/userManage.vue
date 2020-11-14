@@ -21,7 +21,7 @@ import RoleComponent from './userComponents/roleComponent'
 export default {
     data () {
         return {
-            activeTabName: 'role'
+            activeTabName: 'user'
         }
     },
     //引入组件

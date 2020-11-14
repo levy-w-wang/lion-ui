@@ -28,6 +28,14 @@
             </el-table-column>
             <el-table-column label="角色名称"
                              prop="roleName">
+                <template slot-scope="scope">
+                    <el-button type="text"
+                               @click="()=>{getRoleMenu(scope.row),hasPermsDialogVisible = true}"
+                               style="color:#409eff">
+                        {{scope.row.roleName}}
+                    </el-button>
+                </template>
+
             </el-table-column>
             <el-table-column label="角色描述"
                              prop="roleDesc">
@@ -42,19 +50,19 @@
                              align="right">
                 <template slot-scope="scope">
                     <el-button size="mini"
-                               v-perms="'u_edit'"
+                               v-perms="'r_perms_config'"
                                v-if="scope.row.roleId != '1' && scope.row.roleId != '2'"
-                               @click="handleEdit(scope.$index, scope.row)">配置权限</el-button>
+                               @click="handleConfigRolePerms(scope.row)">配置权限</el-button>
                     <el-button size="mini"
-                               v-perms="'u_edit'"
+                               v-perms="'r_relation'"
                                v-if="scope.row.roleId != '1' && scope.row.roleId != '2'"
-                               @click="handleEdit(scope.$index, scope.row)">关联用户</el-button>
+                               @click="handleRelation(scope.row)">关联用户</el-button>
                     <el-button size="mini"
-                               v-perms="'u_edit'"
+                               v-perms="'r_edit'"
                                v-if="scope.row.roleId != '1' && scope.row.roleId != '2'"
                                @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
                     <el-button size="mini"
-                               v-perms="'u_delete'"
+                               v-perms="'r_delete'"
                                v-if="scope.row.roleId != '1' && scope.row.roleId != '2'"
                                type="danger"
                                @click="handleDelete(scope.$index, scope.row)">删除</el-button>
@@ -69,8 +77,10 @@
             <!-- <el-button type="success">测试按钮</el-button> -->
         </pagination-footer>
 
+        <!-- 角色新增&编辑 -->
         <el-dialog :title="addRole ?'新增角色':'编辑角色'"
                    :visible.sync="dialogVisible"
+                   :close-on-click-modal="false"
                    width="420px">
             <el-form :model="roleData"
                      label-position="right"
@@ -88,7 +98,8 @@
                 <el-form-item label="角色描述："
                               prop="roleDesc"
                               :rules="[{max: 16,message: '长度在2到120个字符',trigger: 'blur'},]">
-                    <el-input type="text"
+                    <el-input type="textarea"
+                              :rows="2"
                               v-model="roleData.roleDesc"
                               placeholder="角色说明，描述等"
                               autocomplete="off"></el-input>
@@ -102,6 +113,110 @@
                     }">取 消</el-button>
                 <el-button type="primary"
                            @click="submitForm('roleDataForm')">确 定</el-button>
+            </span>
+        </el-dialog>
+        <!-- 角色权限 -->
+        <el-dialog title="角色权限"
+                   width="550px"
+                   :close-on-click-modal="false"
+                   :visible.sync="hasPermsDialogVisible">
+            <div style="margin-bottom: 15px;">当前角色名：
+                <h4 style="display:contents">{{currentOpertionRole.roleName}}</h4> <span class="perms_config_desc">当前角色所拥有的权限</span>
+            </div>
+            <el-tree :data="currentRolePerms"
+                     node-key="menuId"
+                     :props="defaultProps"
+                     default-expand-all>
+                <span class="custom-tree-node"
+                      slot-scope="{ node, data }">
+                    <span>{{ node.label }}</span>
+                    <span v-if="data.type == 1 && data.url != ''"
+                          class="menu_type_span">
+                        <el-tag size="mini"
+                                type="warning">页面</el-tag>
+                    </span>
+                    <span v-if="data.type == 1 && data.url == ''"
+                          class="menu_type_span">
+                        <el-tag size="mini"
+                                type="danger">目录</el-tag>
+                    </span>
+                    <span v-else-if="data.type == 2"
+                          class="menu_type_span">
+                        <el-tag size="mini"
+                                type="info">按钮</el-tag>
+                    </span>
+                </span>
+            </el-tree>
+            <div slot="footer"
+                 class="dialog-footer">
+                <el-button @click="hasPermsDialogVisible = false">关闭</el-button>
+            </div>
+        </el-dialog>
+        <!-- 配置权限 -->
+        <el-dialog title="配置权限"
+                   :close-on-click-modal="false"
+                   :visible.sync="configPermsDialogVisible"
+                   width="550px">
+            <div style="margin-bottom: 15px;">当前角色名：
+                <h4 style="display:contents">{{currentOpertionRole.roleName}}</h4> <span class="perms_config_desc">可以设置角色权限到具体的操作按钮</span>
+            </div>
+            <el-tree :data="currentMenuTreeCopy"
+                     show-checkbox
+                     node-key="menuId"
+                     ref="configMenuTree"
+                     :highlight-current="true"
+                     :props="defaultProps"
+                     :default-checked-keys="defaultCheckedKeys"
+                     :default-expanded-keys="defaultExpandedKeys"
+                     :expand-on-click-node="false">
+                <span class="custom-tree-node"
+                      slot-scope="{ node, data }">
+                    <span>{{ node.label }}</span>
+                    <span v-if="data.type == 1 && data.url != ''"
+                          class="menu_type_span">
+                        <el-tag size="mini"
+                                type="warning">页面</el-tag>
+                    </span>
+                    <span v-if="data.type == 1 && data.url == ''"
+                          class="menu_type_span">
+                        <el-tag size="mini"
+                                type="danger">目录</el-tag>
+                    </span>
+                    <span v-else-if="data.type == 2"
+                          class="menu_type_span">
+                        <el-tag size="mini"
+                                type="info">按钮</el-tag>
+                    </span>
+                </span>
+            </el-tree>
+            <div slot="footer"
+                 class="dialog-footer">
+                <el-button @click="configPermsDialogVisible = false">关闭</el-button>
+                <el-button type="primary"
+                           @click="submitConfigPerms">确认</el-button>
+            </div>
+        </el-dialog>
+        <!-- 角色关联用户 -->
+        <el-dialog title="关联用户"
+                   :close-on-click-modal="false"
+                   :visible.sync="relationUserDialogVisible"
+                   width="550px">
+            <div style="margin-bottom: 15px;">当前角色名：
+                <h4 style="display:contents">{{currentOpertionRole.roleName}}</h4> <span class="perms_config_desc">直接勾选需要关联到的用户，然后点击保存</span>
+            </div>
+            <el-checkbox-group v-model="roleRelationUserIds"
+                               v-if="roleRelationUser && roleRelationUser.length > 0">
+                <el-checkbox v-for="(item,i) in roleRelationUser"
+                             :key="i"
+                             :label="item.userId">{{item.userName}}
+                </el-checkbox>
+            </el-checkbox-group>
+            <h3 v-else>暂无可关联的用户，请先去用户管理新增用户。</h3>
+            <span slot="footer"
+                  class="dialog-footer">
+                <el-button @click="relationUserDialogVisible = false">取 消</el-button>
+                <el-button type="primary"
+                           @click="saveRelationUser()">保 存</el-button>
             </span>
         </el-dialog>
     </div>
@@ -120,18 +235,76 @@ export default {
                 pageSize: 20,
                 roleName: null,
             },
-            dialogVisible: false,
+            dialogVisible: false,//新增&编辑用户对话框
             roleData: {},
             tableData: [],
+            currentMenuTree: [],//当前用户拥有的菜单树权限
+            currentMenuTreeCopy: [],//菜单树copy对象
+            currentOpertionRole: {},//当前操作角色对象
+            currentRolePerms: [],//当前角色权限数组
+            defaultCheckedKeys: [],//配置默认选中keys
+            defaultExpandedKeys: [],//配置默认展开keys
+            hasPermsDialogVisible: false,//角色拥有权限对话框
+            configPermsDialogVisible: false,//配置权限对话框
+            relationUserDialogVisible: false,//关联用户对话框
+            roleRelationUser: [],
+            roleRelationUserIds: [],
+            defaultProps: {
+                children: 'childMenus',
+                label: 'menuName'
+            }
         };
     },
     //引入组件 
     components: {},
     // 方法
     methods: {
+        /**提交权限配置 */
+        submitConfigPerms () {
+            let checkMenus = this.$refs.configMenuTree.getCheckedKeys().concat(this.$refs.configMenuTree.getHalfCheckedKeys()) ?? []
+            var params = { roleId: this.currentOpertionRole.roleId, menuIds: checkMenus };
+            this.$api.role.roleMenuModify(params).then(res => {
+                if (res.code == 200) {
+                    this.$message.success("配置成功")
+                    this.configPermsDialogVisible = false
+                }
+            })
+        },
+        /**获取当前角色的权限 */
+        getRoleMenu (row, flag = false) {
+            this.currentOpertionRole = row;
+            this.currentRolePerms = []
+            this.$api.role.roleMenu(row.roleId).then(res => {
+                if (res.code == 200) {
+                    if (flag == true) {
+                        let menuIds = [];
+                        let expandedMenuIds = [];
+                        this.getCurrentRolePermsIds(res.data, menuIds, expandedMenuIds)
+                        this.$nextTick(() => {
+                            this.defaultCheckedKeys = menuIds
+                            this.defaultExpandedKeys = expandedMenuIds
+                        })
+                    }
+                    else {
+                        this.currentRolePerms = res.data
+                    }
+                }
+            })
+        },
+        getCurrentRolePermsIds (data, ids, expandedMenuIds) {
+            for (let index = 0; index < data.length; index++) {
+                const element = data[index];
+                if (element.childMenus && element.childMenus.length > 0) {
+                    expandedMenuIds.push(element.menuId)
+                    this.getCurrentRolePermsIds(element.childMenus, ids, expandedMenuIds)
+                }
+                else {
+                    ids.push(element.menuId)
+                }
+            }
+        },
+        /**查询 */
         searchData () {
-            console.log(this.searchForm);
-            console.log(this.$store.getters.userInfo);
             this.$api.role.rolePage(this.searchForm).then(res => {
                 if (res.code == 200) {
                     this.tableData = res.data.data
@@ -139,9 +312,48 @@ export default {
                     this.searchForm.currentPage = res.data.currentPage
                     this.searchForm.pageSize = res.data.pageSize
                 }
-                console.log(res);
             })
         },
+        /**table配置权限 */
+        handleConfigRolePerms (row) {
+            this.defaultCheckedKeys = []
+            this.defaultExpandedKeys = []
+            // this.currentMenuTreeCopy = Object.assign([], this.currentMenuTree)
+            this.currentMenuTreeCopy = JSON.parse(JSON.stringify(this.currentMenuTree))
+            this.getRoleMenu(row, true)
+            setTimeout(() => {
+                this.configPermsDialogVisible = true
+            }, 20);
+
+        },
+        /**table 关联用户 */
+        handleRelation (row) {
+            this.currentOpertionRole = row
+            this.$api.role.roleUser(row.roleId).then(res => {
+                if (res.code == 200) {
+                    if (res.data.length > 0) {
+                        this.roleRelationUser = res.data
+                        this.roleRelationUserIds = res.data.filter(r => r.roleId > 0).map(r => r.userId)
+                        this.relationUserDialogVisible = true
+                    }
+                    else {
+                        this.$message.warning("暂无可关联的用户，请先去用户管理新增用户。")
+                    }
+                }
+            })
+        },
+        /**修改角色关联用户 */
+        saveRelationUser () {
+            let params = { roleId: this.currentOpertionRole.roleId, userIds: this.roleRelationUserIds }
+            this.$api.role.roleUserModify(params).then(res => {
+                if (res.code == 200) {
+                    this.$message.success("角色关联保存成功")
+                    this.relationUserDialogVisible = false
+                    this.searchData()
+                }
+            })
+        },
+        /**table编辑 */
         handleEdit (index, row) {
             this.handleRoleIndex = index
             this.addRole = false
@@ -152,16 +364,15 @@ export default {
             }
             this.dialogVisible = true
         },
+        /**table删除 */
         handleDelete (index, row) {
-            console.log(index, row);
-            this.$confirm('<font style="font-size: 18px;color:#324057;">确定删除该用户？<font></br><font  style="font-size: 14px;color:#324057;">删除后该角色下所有用户将解除关联，为保证正常使用，请及时将用户关联角色</font>', "删除提醒", {
+            this.$confirm('<font style="font-size: 18px;color:#324057;">确定删除该角色？<font></br><font  style="font-size: 14px;color:#324057;">删除后该角色下所有用户将解除关联，为保证正常使用，请及时将用户关联角色</font>', "删除提醒", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
                 dangerouslyUseHTMLString: true,
                 type: "warning"
             }).then(() => {
                 this.$api.role.removeRole(row.roleId).then(res => {
-                    console.log(res);
                     if (res.code == 200) {
                         this.$message.success('删除成功')
                         this.tableData.splice(index, 1)
@@ -169,16 +380,18 @@ export default {
                 })
             }).catch(() => { this.$message.info('已取消删除') })
         },
+        /**新增&编辑用户取消 */
         resetForm (formName) {
             this.$refs[formName].resetFields();
         },
+        /**新增&编辑用户提交 */
         submitForm (formName) {
             this.$refs[formName].validate((valid) => {
                 if (valid) {
                     if (this.addRole) {
                         this.$api.role.addRole(this.roleData).then(res => {
-                            console.log(res);
                             if (res.code == 200) {
+                                this.$message.success("新增角色成功")
                                 this.dialogVisible = false
                                 this.searchData()
                                 this.resetForm(formName)
@@ -187,8 +400,8 @@ export default {
                     }
                     else {
                         this.$api.role.modifuRole(this.roleData).then(res => {
-                            console.log(res);
                             if (res.code == 200) {
+                                this.$message.success("修改角色成功")
                                 this.tableData[this.handleRoleIndex].roleDesc = this.roleData.roleDesc
                                 this.tableData[this.handleRoleIndex].roleName = this.roleData.roleName
                                 this.dialogVisible = false
@@ -203,7 +416,8 @@ export default {
         },
     },
     // 计算属性  
-    computed: {},
+    computed: {
+    },
     //未挂载DOM,不能访问ref为空数组
     //可在这结束loading，还做一些初始化，实现函数自执行,
     //可以对data数据进行操作，可进行一些请求，请求不易过多，避免白屏时间太长。
@@ -211,9 +425,27 @@ export default {
         this.searchData();
     },
     //可在这发起后端请求，拿回数据，配合路由钩子做一些事情；可对DOM 进行操作
-    mounted () { }
+    mounted () {
+        // this.currentMenuTree = this.$store.state.app.menuTree
+        this.$api.menu.getMenuList().then(res => {
+            if (res.code == 200) {
+                this.currentMenuTree = res.data
+            }
+        })
+    }
 }
 
 </script>
 <style lang='scss' scoped>
+.menu_type_span {
+    margin-left: 20px;
+}
+.perms_config_desc {
+    color: #97aac1;
+    font-size: 12px;
+    padding-left: 6px;
+}
+.el-dialog__body {
+    padding: 20px 20px;
+}
 </style>

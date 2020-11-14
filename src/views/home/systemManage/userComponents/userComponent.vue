@@ -4,7 +4,7 @@
         <div class="top-div-button">
             <el-button type="primary"
                        v-perms="'u_add'"
-                       @click="dialogVisible = true">新增用户</el-button>
+                       @click="()=>{dialogVisible = true,addUser = true}">新增用户</el-button>
         </div>
         <el-form :inline="true"
                  :model="searchForm"
@@ -59,41 +59,42 @@
         </el-table>
 
         <pagination-footer :total="total"
-                           :page.sync="searchForm.currentPage"
-                           :limit.sync="searchForm.pageSize"
+                           :page.sync="currentPage"
+                           :limit.sync="pageSize"
                            @pagination="searchData">
-            <el-button type="success">测试按钮</el-button>
+            <!-- <el-button type="success">测试按钮</el-button> -->
         </pagination-footer>
 
-        <el-dialog title="新增用户"
+        <el-dialog :title="addUser ? '新增用户' :'编辑用户'"
                    :visible.sync="dialogVisible"
+                   :close-on-click-modal="false"
                    width="420px">
             <el-form :model="userData"
                      label-position="right"
                      ref="userDataForm"
-                     label-width="100px"
-                     class="demo-ruleForm">
+                     label-width="100px">
                 <el-form-item label="登录名："
-                              prop="name"
-                              :rules="[{ required: true, message: '登录名不能为空'},]">
+                              prop="userName"
+                              :rules="[{ required: true, message: '登录名不能为空'},{pattern:/^(?!_)(?!.*?_$)[a-zA-Z0-9_]{4,12}$/,message:'登录账号不符合规则'}]">
                     <el-input type="text"
-                              v-model="userData.userName"
-                              autocomplete="off"></el-input>
+                              v-model.trim="userData.userName"
+                              :disabled="!addUser"
+                              placeholder="登录账号"></el-input>
                 </el-form-item>
                 <el-form-item label="邮箱："
                               prop="email"
-                              :rules="[{ required: true, message: '邮箱不能为空'},]">
+                              :rules="[{ required: true, message: '邮箱不能为空'},{pattern:/^[A-Za-z0-9\u4e00-\u9fa5_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/,message:'邮箱格式不正确'}]">
                     <el-input type="text"
-                              v-model="userData.email"
-                              placeholder="找回密码的邮箱"
-                              autocomplete="off"></el-input>
+                              v-model.trim="userData.email"
+                              placeholder="找回密码的邮箱"></el-input>
                 </el-form-item>
                 <el-form-item label="登录密码："
+                              v-if="addUser"
                               prop="pwd"
-                              :rules="[{ required: true, message: '密码不能为空'},]">
+                              :rules="[{ required: true, message: '密码不能为空'},{pattern:/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d$@!%*#?&~]{6,20}/,message:'登录密码不符合规则'}]">
                     <el-input type="text"
-                              v-model="userData.pwd"
-                              autocomplete="off"></el-input>
+                              v-model.trim="userData.pwd"
+                              show-password></el-input>
                 </el-form-item>
                 <el-form-item label="角色："
                               prop="roleIds"
@@ -104,11 +105,11 @@
                                clearable
                                filterable
                                placeholder="请选择">
-                        <!-- <el-option v-for="item in options"
-                                   :key="item.value"
-                                   :label="item.label"
-                                   :value="item.value">
-                        </el-option> -->
+                        <el-option v-for="item in roleData"
+                                   :key="item.roleId"
+                                   :label="item.roleName"
+                                   :value="item.roleId">
+                        </el-option>
                     </el-select>
                 </el-form-item>
             </el-form>
@@ -130,20 +131,19 @@
 export default {
     data () {
         return {
+            handleUserIndex: -1,
+            addUser: false,
             total: 0,
+            currentPage: 1,
+            pageSize: 20,
             searchForm: {
-                currentPage: 1,
-                pageSize: 20,
                 userName: null,
                 email: null
             },
             dialogVisible: false,
-            userData: {
-                date: '2018-08-16',
-                name: '',
-                address: ''
-            },
+            userData: {},
             tableData: [],
+            roleData: [],
         };
     },
     //引入组件 
@@ -151,16 +151,13 @@ export default {
     // 方法
     methods: {
         searchData () {
-            console.log(this.searchForm);
-            console.log(this.$store.getters.userInfo);
-            this.$api.user.userList(this.searchForm.pageSize, this.searchForm.currentPage, this.searchForm).then(res => {
+            this.$api.user.userList(this.pageSize, this.currentPage, this.searchForm).then(res => {
                 if (res.code == 200) {
                     this.tableData = res.data.data
                     this.total = res.data.recordTotal
-                    this.searchForm.currentPage = res.data.currentPage
-                    this.searchForm.pageSize = res.data.pageSize
+                    this.currentPage = res.data.currentPage
+                    this.pageSize = res.data.pageSize
                 }
-                console.log(res);
             })
         },
         roleNameStr (roleNames) {
@@ -170,27 +167,70 @@ export default {
             return ''
         },
         handleEdit (index, row) {
-            console.log(index, row);
+            this.handleUserIndex = index
+            this.addUser = false;
+            this.userData = {
+                userId: row.userId,
+                userName: row.userName,
+                email: row.email,
+                roleIds: row.roleIds
+            }
+            this.dialogVisible = true
         },
         handleDelete (index, row) {
-            console.log(index, row);
+            this.$confirm('<font style="font-size: 18px;color:#324057;">确定删除该用户？<font></br><font  style="font-size: 14px;color:#324057;">删除后该用户账号将注销，请谨慎操作</font>', "删除提醒", {
+                confirmButtonText: "确定",
+                cancelButtonText: "取消",
+                dangerouslyUseHTMLString: true,
+                type: "warning"
+            }).then(() => {
+                this.$api.user.removeUser(row.userId).then(res => {
+                    if (res.code == 200) {
+                        this.$message.success('删除成功')
+                        this.tableData.splice(index, 1)
+                    }
+                })
+            }).catch(() => { this.$message.info('已取消删除') })
         },
         resetForm (formName) {
             this.$refs[formName].resetFields();
+            this.addUser = false
         },
         submitForm (formName) {
             this.$refs[formName].validate((valid) => {
                 if (valid) {
-                    let tempUser = Object.assign({}, this.userData)//只会拷贝一层  多层结构请使用深拷贝 （如序列化与反序列化）
-                    this.tableData.push(tempUser)
-                    this.resetForm(formName)
-                    this.dialogVisible = false
+                    if (this.addUser) {
+                        this.$api.user.addUser(this.userData).then(res => {
+                            if (res.code == 200) {
+                                this.$message.success("新增用户成功")
+                                this.resetForm(formName)
+                                this.dialogVisible = false
+                                this.searchData()
+                            }
+                        })
+                    }
+                    else {
+                        this.$api.user.modifyUser(this.userData).then(res => {
+                            if (res.code == 200) {
+                                this.$message.success("修改用户成功")
+                                this.searchData()
+                                this.dialogVisible = false
+                                this.resetForm(formName)
+                            }
+                        })
+                    }
                 } else {
-                    console.log('error submit!!');
                     return false;
                 }
             });
         },
+        getRoleData () {
+            this.$api.role.canRelationRolePage().then(res => {
+                if (res.code == 200) {
+                    this.roleData = res.data.data
+                }
+            })
+        }
     },
     // 计算属性  
     computed: {},
@@ -198,7 +238,8 @@ export default {
     //可在这结束loading，还做一些初始化，实现函数自执行,
     //可以对data数据进行操作，可进行一些请求，请求不易过多，避免白屏时间太长。
     created () {
-        this.searchData();
+        this.searchData()
+        this.getRoleData()
     },
     //可在这发起后端请求，拿回数据，配合路由钩子做一些事情；可对DOM 进行操作
     mounted () { }

@@ -9,6 +9,10 @@ const menu = {
     getMenutree () {
         return axios.get('/api/menu/menutree');
     },
+    /**获取当前能访问的菜单 -- 分配权限用 */
+    getMenuList () {
+        return axios.get('/api/menu/menulist');
+    },
     /**添加菜单 */
     addmenu (params) {
         return axios.post('/api/menu/menu', params)

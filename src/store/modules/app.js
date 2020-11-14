@@ -72,7 +72,7 @@ export default {
                     spinner: 'el-icon-loading',
                     background: 'rgba(0, 0, 0, 0.5)'
                 })
-                state.timer = setTimeout(() => {
+                state.loadingTimer = setTimeout(() => {
                     console.log(state);
                     if (state.loading) {
                         this.commit("endLoading")
@@ -85,8 +85,8 @@ export default {
             state.loadingCount--
             if (state.loadingCount <= 0) {
                 state.loadingCount = 0
-                if (state.timer) {
-                    clearTimeout(state.timer)
+                if (state.loadingTimer) {
+                    clearTimeout(state.loadingTimer)
                 }
                 if (state.loading) {
                     NProgress.done() /**请求进度条-结束 */

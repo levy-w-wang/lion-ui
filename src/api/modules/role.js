@@ -8,6 +8,12 @@ const role = {
     rolePage (params) {
         return axios.post('/api/role/page', params)
     },
+    /**
+    * 获取可关联的角色一览
+    */
+    canRelationRolePage () {
+        return axios.get('/api/role/page')
+    },
     /**新增角色 */
     addRole (params) {
         return axios.post('/api/role/add', params)
