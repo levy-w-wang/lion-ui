@@ -8,19 +8,19 @@
                      label-position="left"
                      label-width="0px"
                      class="login-form">
-                <el-form-item prop="userName">
+                <el-form-item prop="email">
                     <el-input type="text"
-                              v-model="loginForm.userName"
+                              v-model.trim="loginForm.email"
                               auto-complete="off"
                               @keyup.enter.native="login"
-                              placeholder="请输入账号">
+                              placeholder="邮箱">
                         <i slot="prefix"
                            class="el-input__icon el-icon-user-solid"></i>
                     </el-input>
                 </el-form-item>
                 <el-form-item prop="password">
                     <el-input type="password"
-                              v-model="loginForm.password"
+                              v-model.trim="loginForm.password"
                               auto-complete="off"
                               @keyup.enter.native="login"
                               show-password
@@ -33,7 +33,7 @@
                     <el-row>
                         <el-col :span="14">
                             <el-input type="text"
-                                      v-model="loginForm.captcha"
+                                      v-model.trim="loginForm.captcha"
                                       @keyup.enter.native="login"
                                       auto-complete="off"
                                       placeholder="请输入验证码">
@@ -70,7 +70,7 @@ export default {
         return {
             logining: false,
             loginForm: {
-                userName: 'levy1',
+                email: 'levy_wang@qq.com',
                 password: 'qwer1234',
                 captcha: '',
                 uuid: ''
@@ -78,7 +78,7 @@ export default {
             captchaBase64: '',
             notifyObj: null,
             loginFormRules: {
-                userName: [{ required: true, message: '请输入账号', trigger: 'blur' }],
+                email: [{ required: true, message: '请输入昵称', trigger: 'blur' }],
                 password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
                 captcha: [{ required: true, message: '请输入验证码', trigger: 'blur' }, { pattern: '^[A-Za-z0-9]{4}$', message: '验证码为4位字符', trigger: ['blur', 'change'] }],
             },
@@ -156,7 +156,7 @@ export default {
     mounted () {
         this.notifyObj = this.$notify({
             title: '提示',
-            message: '管理员，账号分别为：admin,用户账号：user,密码均为：123456',
+            message: '管理员，账号分别为：levywang123@gmail.com,用户账号：levy_wang@qq.com,qwer1234',
             duration: 4000,
             iconClass: 'el-icon-s-opportunity',
         })

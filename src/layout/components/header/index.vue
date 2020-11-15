@@ -63,7 +63,7 @@
                         <el-dropdown trigger="hover">
                             <span class="el-dropdown-link userinfo-inner">
                                 <img src="@assets/img/user.jpg" />
-                                {{ $store.getters.userInfo.userName }}<i class="el-icon-caret-bottom"></i>
+                                {{ $store.getters.userInfo.nickName }}<i class="el-icon-caret-bottom"></i>
                             </span>
                             <el-dropdown-menu slot="dropdown">
                                 <el-dropdown-item>

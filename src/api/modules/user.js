@@ -15,7 +15,7 @@ const user = {
     },
     /**获取注册验证码 */
     registercaptcha (params) {
-        return axios.get('/api/user/registercaptcha', { data: params })
+        return axios.get('/api/user/registercaptcha', { params: params })
     },
     /**注册用户 */
     register (params) {
@@ -23,7 +23,7 @@ const user = {
     },
     /**是否存在 */
     exist (params) {
-        return axios.get('/api/user/exist', { data: params })
+        return axios.get('/api/user/exist', { params })
     },
     /**修改密码 */
     modifypwd (params) {
@@ -53,7 +53,7 @@ const user = {
      * 新增用户
      * @param {*} params 
        {
-          "userName": "string",
+          "nickName": "string",
           "email": "string",
           "pwd": "string",
           "roleIds": [

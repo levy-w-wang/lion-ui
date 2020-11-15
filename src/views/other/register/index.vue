@@ -10,25 +10,29 @@
                              label-width="100px"
                              label-position="left"
                              class="register-form">
-                        <el-form-item label="登录账号："
-                                      prop="userName"
-                                      :rules="[{ required: true, message: '登录账号不能为空', trigger: 'blur'},{pattern:/^(?!_)(?!.*?_$)[a-zA-Z0-9_]{4,12}$/,message:'登录账号不符合规则'}]">
-                            <el-input v-model="registerUser.userName"
-                                      placeholder="用于登录系统"
-                                      @blur="checkExist(registerUser.userName,1)" />
-                            <span class="el-form-item__error">{{userName_msg}}</span>
+                        <el-form-item label="租户名称："
+                                      prop="tenantName"
+                                      :rules="[{ required: true, message: '租户名称不能为空', trigger: 'blur'},{max:50,message:'租户名称1-50字符'}]">
+                            <el-input v-model.trim="registerUser.tenantName"
+                                      placeholder="显示昵称" />
+                        </el-form-item>
+                        <el-form-item label="昵称："
+                                      prop="nickName"
+                                      :rules="[{ required: true, message: '昵称不能为空', trigger: 'blur'},{max:30,message:'昵称1-30字符'}]">
+                            <el-input v-model.trim="registerUser.nickName"
+                                      placeholder="显示昵称" />
                         </el-form-item>
                         <el-form-item label="登录密码："
                                       prop="passWord"
                                       :rules="[{ required: true, message: '登录密码为空', trigger: 'blur'},{pattern:/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d$@!%*#?&~]{6,20}/,message:'登录密码不符合规则'}]">
                             <el-input placeholder="请输入密码，6-20位字符"
-                                      v-model="registerUser.passWord"
+                                      v-model.trim="registerUser.passWord"
                                       show-password></el-input>
                         </el-form-item>
                         <el-form-item label="邮箱："
                                       prop="email"
                                       :rules="[{ required: true, message: '邮箱不能为空', trigger: 'blur'},{pattern:/^[A-Za-z0-9\u4e00-\u9fa5_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/,message:'邮箱格式不正确'}]">
-                            <el-input v-model="registerUser.email"
+                            <el-input v-model.trim="registerUser.email"
                                       placeholder="邮箱用于找回密码"
                                       @blur="checkExist(registerUser.email,2)" />
                             <span class="el-form-item__error">{{email_msg}}</span>
@@ -72,15 +76,15 @@ export default {
     data () {
         return {
             registerUser: {
-                "userName": "",
+                "nickName": "",
                 "passWord": "",
                 "email": "",
-                "captcha": ""
+                "captcha": "",
+                "tenantName": ""
             },
             captchaMsg: "获取验证码",
             sendtime: 120,
             captchaDisable: true,
-            userName_msg: '',
             email_msg: '',
         };
     },
@@ -142,38 +146,25 @@ export default {
          * 判断用户名和邮箱是否已存在
          * 并更改是否可获取验证码按钮
          */
-        checkExist (pattern, type) {
-            let filed = type == 1 ? 'userName' : 'email'
-            this.$refs.registerUser.validateField(filed, valid => {
+        checkExist (pattern) {
+            this.$refs.registerUser.validateField('email', valid => {
                 if (!valid) {
-                    this.$api.user.exist({ str: pattern, type: type }).then(res => {
+                    this.$api.user.exist({ email: pattern }).then(res => {
                         console.log(res);
-                        if (type == 1) {
-                            if (res.code != 200) {
-                                this.userName_msg = res.data
-                            }
-                            else {
-                                this.userName_msg = ""
-                            }
+                        if (res.code != 200) {
+                            this.captchaDisable = true
+                            this.email_msg = res.data
                         }
                         else {
-                            if (res.code != 200) {
-                                this.captchaDisable = true
-                                this.email_msg = res.data
-                            }
-                            else {
-                                this.captchaDisable = false
-                                this.email_msg = ""
-                                this.captchaMsg = '获取验证码';
-                                this.sendtime = 0
-                            }
+                            this.captchaDisable = false
+                            this.email_msg = ""
+                            this.captchaMsg = '获取验证码';
+                            this.sendtime = 0
                         }
                     })
                 }
                 else {
-                    if (type == 2) {
-                        this.captchaDisable = true
-                    }
+                    this.captchaDisable = true
                 }
             });
         }

@@ -42,8 +42,8 @@
             </el-table-column>
             <el-table-column label="关联用户">
                 <template slot-scope="scope"
-                          v-if="scope.row.userNames">
-                    {{scope.row.userNames.join(',')}}
+                          v-if="scope.row.nickNames">
+                    {{scope.row.nickNames.join(',')}}
                 </template>
             </el-table-column>
             <el-table-column label="操作"
@@ -51,19 +51,19 @@
                 <template slot-scope="scope">
                     <el-button size="mini"
                                v-perms="'r_perms_config'"
-                               v-if="scope.row.roleId != '1' && scope.row.roleId != '2'"
+                               v-if="currentRoleIds.indexOf(scope.row.roleId) == -1"
                                @click="handleConfigRolePerms(scope.row)">配置权限</el-button>
                     <el-button size="mini"
                                v-perms="'r_relation'"
-                               v-if="scope.row.roleId != '1' && scope.row.roleId != '2'"
+                               v-if="currentRoleIds.indexOf(scope.row.roleId) == -1"
                                @click="handleRelation(scope.row)">关联用户</el-button>
                     <el-button size="mini"
                                v-perms="'r_edit'"
-                               v-if="scope.row.roleId != '1' && scope.row.roleId != '2'"
+                               v-if="currentRoleIds.indexOf(scope.row.roleId) == -1"
                                @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
                     <el-button size="mini"
                                v-perms="'r_delete'"
-                               v-if="scope.row.roleId != '1' && scope.row.roleId != '2'"
+                               v-if="currentRoleIds.indexOf(scope.row.roleId) == -1"
                                type="danger"
                                @click="handleDelete(scope.$index, scope.row)">删除</el-button>
                 </template>
@@ -208,7 +208,7 @@
                                v-if="roleRelationUser && roleRelationUser.length > 0">
                 <el-checkbox v-for="(item,i) in roleRelationUser"
                              :key="i"
-                             :label="item.userId">{{item.userName}}
+                             :label="item.userId">{{item.nickName}}
                 </el-checkbox>
             </el-checkbox-group>
             <h3 v-else>暂无可关联的用户，请先去用户管理新增用户。</h3>
@@ -417,6 +417,12 @@ export default {
     },
     // 计算属性  
     computed: {
+        currentRoleIds () {
+            if (this.$store.getters.userInfo && this.$store.getters.userInfo.roleDtos) {
+                return this.$store.getters.userInfo.roleDtos.map(r => r.roleId)
+            }
+            return []
+        }
     },
     //未挂载DOM,不能访问ref为空数组
     //可在这结束loading，还做一些初始化，实现函数自执行,

@@ -10,7 +10,7 @@
                  :model="searchForm"
                  class="demo-form-inline search-form">
             <el-form-item label="用户名:">
-                <el-input v-model="searchForm.userName"
+                <el-input v-model="searchForm.nickName"
                           placeholder="用户名"></el-input>
             </el-form-item>
             <el-form-item label="邮箱:">
@@ -31,8 +31,8 @@
                              type="index"
                              width="50">
             </el-table-column>
-            <el-table-column label="登录名"
-                             prop="userName">
+            <el-table-column label="昵称"
+                             prop="nickName">
             </el-table-column>
             <el-table-column label="邮件"
                              prop="email">
@@ -73,20 +73,20 @@
                      label-position="right"
                      ref="userDataForm"
                      label-width="100px">
-                <el-form-item label="登录名："
-                              prop="userName"
-                              :rules="[{ required: true, message: '登录名不能为空'},{pattern:/^(?!_)(?!.*?_$)[a-zA-Z0-9_]{4,12}$/,message:'登录账号不符合规则'}]">
+                <el-form-item label="昵称："
+                              prop="nickName"
+                              :rules="[{ required: true, message: '昵称不能为空'},{max:30,message:'昵称1-30字符'}]">
                     <el-input type="text"
-                              v-model.trim="userData.userName"
-                              :disabled="!addUser"
-                              placeholder="登录账号"></el-input>
+                              v-model.trim="userData.nickName"
+                              placeholder="昵称"></el-input>
                 </el-form-item>
                 <el-form-item label="邮箱："
                               prop="email"
                               :rules="[{ required: true, message: '邮箱不能为空'},{pattern:/^[A-Za-z0-9\u4e00-\u9fa5_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/,message:'邮箱格式不正确'}]">
                     <el-input type="text"
+                              :disabled="!addUser"
                               v-model.trim="userData.email"
-                              placeholder="找回密码的邮箱"></el-input>
+                              placeholder="登录及找回密码的邮箱"></el-input>
                 </el-form-item>
                 <el-form-item label="登录密码："
                               v-if="addUser"
@@ -137,7 +137,7 @@ export default {
             currentPage: 1,
             pageSize: 20,
             searchForm: {
-                userName: null,
+                nickName: null,
                 email: null
             },
             dialogVisible: false,
@@ -171,7 +171,7 @@ export default {
             this.addUser = false;
             this.userData = {
                 userId: row.userId,
-                userName: row.userName,
+                nickName: row.nickName,
                 email: row.email,
                 roleIds: row.roleIds
             }
@@ -233,7 +233,8 @@ export default {
         }
     },
     // 计算属性  
-    computed: {},
+    computed: {
+    },
     //未挂载DOM,不能访问ref为空数组
     //可在这结束loading，还做一些初始化，实现函数自执行,
     //可以对data数据进行操作，可进行一些请求，请求不易过多，避免白屏时间太长。
@@ -242,7 +243,8 @@ export default {
         this.getRoleData()
     },
     //可在这发起后端请求，拿回数据，配合路由钩子做一些事情；可对DOM 进行操作
-    mounted () { }
+    mounted () {
+    }
 }
 
 </script>

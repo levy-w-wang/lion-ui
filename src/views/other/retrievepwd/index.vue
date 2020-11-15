@@ -62,7 +62,7 @@ export default {
     data () {
         return {
             retrievePwd: {
-                "userName": "",
+                "nickName": "",
                 "pwd": "",
                 "email": "",
                 "captcha": ""
