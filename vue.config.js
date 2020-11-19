@@ -1,5 +1,5 @@
 const path = require('path')
-const resolve = function(dir) {
+const resolve = function (dir) {
     return path.join(__dirname, dir)
 }
 module.exports = {
@@ -16,7 +16,7 @@ module.exports = {
         // config.optimization.runtimeChunk('single')
     },
     devServer: {
-        host: 'localhost',
+        host: '0.0.0.0',
         port: '8080',
         hot: true,
         open: true,

@@ -76,7 +76,6 @@ export default {
                 uuid: ''
             },
             captchaBase64: '',
-            notifyObj: null,
             loginFormRules: {
                 email: [{ required: true, message: '请输入昵称', trigger: 'blur' }],
                 password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
@@ -99,12 +98,6 @@ export default {
                             if (this.$route.query.redirect !== undefined) {
                                 redirect = this.$route.query.redirect
                             }
-                            setTimeout(() => {
-                                if (this.notifyObj) {
-                                    this.notifyObj.close()
-                                }
-                                this.notifyObj = null
-                            }, 800)
                             this.logining = false
                             this.$message({
                                 type: 'success',
@@ -119,10 +112,6 @@ export default {
                         else {
                             this.logining = false
                             this.getCaptcha()
-                            // this.$message({
-                            //     type: 'error',
-                            //     message: res.message,
-                            // })
                         }
                     })
                 } else {
@@ -140,26 +129,12 @@ export default {
             })
         },
     },
-    // 计算属性
-    computed: {},
-    //未挂载DOM,不能访问ref为空数组
-    //可在这结束loading，还做一些初始化，实现函数自执行,
-    //可以对data数据进行操作，可进行一些请求，请求不易过多，避免白屏时间太长。
     created () {
         //若是使用状态退出 则刷新一下 重置vuex
         if (this.$store.state.app.mainTabsActiveName != '') {
             window.location.reload()
         }
         this.getCaptcha();
-    },
-    //可在这发起后端请求，拿回数据，配合路由钩子做一些事情；可对DOM 进行操作
-    mounted () {
-        this.notifyObj = this.$notify({
-            title: '提示',
-            message: '管理员，账号分别为：levywang123@gmail.com,用户账号：levy_wang@qq.com,qwer1234',
-            duration: 4000,
-            iconClass: 'el-icon-s-opportunity',
-        })
     },
 }
 </script>
