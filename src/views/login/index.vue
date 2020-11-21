@@ -43,6 +43,7 @@
                                 :offset="2">
                             <el-image @click="getCaptcha"
                                       class="captcha_img"
+                                      :load="true"
                                       :src="captchaBase64"></el-image>
                         </el-col>
                     </el-row>
@@ -98,16 +99,28 @@ export default {
                             if (this.$route.query.redirect !== undefined) {
                                 redirect = this.$route.query.redirect
                             }
-                            this.logining = false
+
                             this.$message({
                                 type: 'success',
                                 message: '登录成功',
                                 duration: 800,
                             })
                             this.$router.push("/")
-                            setTimeout(() => {
-                                this.$router.push(redirect)
-                            }, 500)
+                            // 登录跳转到退出界面
+                            if (this.$route.query.redirect != '/') {
+                                let time = 0;
+                                let goToredirectUrl = () => {
+                                    if (time > 1000 || this.$store.state.app.menuLoad) {
+                                        if (this.$router.match(redirect) && this.$router.match(redirect).name !== 'notfound') {
+                                            this.$router.push(redirect)
+                                        }
+                                        return;
+                                    }
+                                    else { setTimeout(() => goToredirectUrl(), 50) }
+                                    time += 50;
+                                }
+                                goToredirectUrl()
+                            }
                         }
                         else {
                             this.logining = false

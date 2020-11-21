@@ -129,12 +129,26 @@ router.beforeEach(async (to, from, next) => {
             if (routerIndex !== -1) {
                 next()
             } else {
-                next({
-                    path: '/login',
-                    query: {
-                        redirect: to.fullPath
+                // 当没登录直接打开网址时  未找到地址且不是白名单时，将直接跳转到登录页面
+                console.log(to.path.slice(1));
+                if (to.path.slice(1) !== '') {
+                    if (to.matched.length === 0) {
+                        router.push({
+                            path: '/login'
+                        })
+                    } else {
+                        router.push({
+                            path: '/login',
+                            query: {
+                                redirect: to.path.slice(1)
+                            }
+                        })
                     }
-                })
+                } else {
+                    router.push({
+                        path: '/login'
+                    })
+                }
             }
         }
         else {

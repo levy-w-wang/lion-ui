@@ -162,13 +162,15 @@
             </div>
             <el-tree :data="currentMenuTreeCopy"
                      show-checkbox
+                     :check-strictly="true"
                      node-key="menuId"
                      ref="configMenuTree"
                      :highlight-current="true"
                      :props="defaultProps"
                      :default-checked-keys="defaultCheckedKeys"
                      :default-expanded-keys="defaultExpandedKeys"
-                     :expand-on-click-node="false">
+                     :expand-on-click-node="false"
+                     @check="configCheck">
                 <span class="custom-tree-node"
                       slot-scope="{ node, data }">
                     <span>{{ node.label }}</span>
@@ -295,6 +297,7 @@ export default {
             for (let index = 0; index < data.length; index++) {
                 const element = data[index];
                 if (element.childMenus && element.childMenus.length > 0) {
+                    ids.push(element.menuId)
                     expandedMenuIds.push(element.menuId)
                     this.getCurrentRolePermsIds(element.childMenus, ids, expandedMenuIds)
                 }
@@ -325,6 +328,56 @@ export default {
                 this.configPermsDialogVisible = true
             }, 20);
 
+        },
+        /** 权限配置  check点击时*/
+        configCheck (currentObj, treeStatus) {
+            // 用于：父子节点严格互不关联时，父节点勾选变化时通知子节点同步变化，实现单向关联。
+            let selected = treeStatus.checkedKeys.indexOf(currentObj.menuId) // -1未选中,>=0为选中
+            // 选中
+            if (selected !== -1) {
+                // 子节点只要被选中父节点就被选中(需要选中父节点时候调用此方法)
+                this.selectedParent('configMenuTree', currentObj)
+                // 统一处理子节点为相同的勾选状态
+                this.uniteChildSame('configMenuTree', currentObj, true)
+            } else {
+                // 未选中 处理子节点全部未选中
+                if (currentObj.childMenus.length !== 0) {
+                    this.uniteChildSame('configMenuTree', currentObj, false)
+                }
+                // 当前所有子节点都未选择时。将上一级非页面选中状态也取消
+                this.unselectedParent('configMenuTree', currentObj)
+            }
+        },
+        // 统一处理子节点为相同的勾选状态
+        uniteChildSame (treeName, treeList, isSelected) {
+            // 父节点的状态将同步到所有子节点
+            this.$refs[treeName].setChecked(treeList.menuId, isSelected, true)
+            for (let i = 0; i < treeList.childMenus.length; i++) {
+                this.uniteChildSame(treeName, treeList.childMenus[i], isSelected)
+            }
+        },
+        // 统一处理父节点为选中
+        selectedParent (treeName, currentObj) {
+            let currentNode = this.$refs[treeName].getNode(currentObj)
+            // 有一个子节点被选中 他的上级都将被选中
+            if (currentNode.parent.key !== undefined) {
+                this.$refs[treeName].setChecked(currentNode.parent, true)
+                this.selectedParent(treeName, currentNode.parent)
+            }
+        },
+        // 统一处理父节点为选中
+        unselectedParent (treeName, currentObj) {
+            let currentNode = this.$refs[treeName].getNode(currentObj)
+            if (currentNode.parent.key !== undefined) {
+                // 查看是否有一个被选中的同级节点
+                let hasCheckNode = currentNode.parent.childNodes.some(node => node.checked)
+                // 可以仅分配一个页面查看的权限不分配按钮权限  
+                // 当前目录下所有子节点都取消时  也取消目录的权限
+                if (!hasCheckNode && currentNode.parent.data.url == '' && currentNode.parent.data.type == 1) {
+                    this.$refs[treeName].setChecked(currentNode.parent, false)
+                    this.unselectedParent(treeName, currentNode.parent)
+                }
+            }
         },
         /**table 关联用户 */
         handleRelation (row) {
