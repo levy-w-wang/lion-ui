@@ -5,6 +5,28 @@ $aside-collapse-width: 65px;
 // 头部高度
 $header-height: 45px;
 
+
+.iconfont {
+    font-family:"iconfont" !important;
+    font-size:16px;
+    font-style:normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+// 阿里图标 FontClass/Symbol 前缀 设置
+[class^="lion-icon-"], [class*=" lion-icon-"] {
+    font-family:"iconfont" !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    vertical-align: middle;
+    margin-right: 5px;
+    width: 24px;
+    text-align: center;
+    font-size: 18px;
+  }
+
+
 .header {
     .el-menu--horizontal > .el-menu-item {
         height: $header-height;

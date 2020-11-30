@@ -19,6 +19,7 @@ Vue.prototype.$ELEMENT = { size: 'small', zIndex: 3000 }
 
 Vue.prototype.$api = api
 Vue.prototype.$bus = bus
+Vue.prototype.$log = window.console.log
 
 /**按钮是否显示 */
 Vue.directive('perms', {
