@@ -94,9 +94,15 @@ a {
 .el-popup-parent--hidden {
     overflow: auto !important;
 }
+
+/*全局table最低高度550px*/
+.el-table{
+    min-height: 550px;
+}
+
 /*分页栏样式*/
 .public-pagination {
-    padding: 25px 30px 25px 30px;
+    padding: 15px 20px 15px 20px;
     display: -webkit-box;
     display: -webkit-flex;
     display: -ms-flexbox;
@@ -109,12 +115,16 @@ a {
     -webkit-justify-content: space-between;
     -ms-flex-pack: justify;
     justify-content: space-between;
+    background-color:#FFFFFF;
 }
 /*查询条件框统一样式*/
 .search-area {
-    padding: 10px 2px 0px;
-    margin: 5px 0;
+    padding: 13px 5px;
+    margin: 5px 0 10px;
     background: #f8f8f8;
+    .el-form-item{
+        margin-bottom: 0;
+    }
 }
 
 /*按钮样式*/

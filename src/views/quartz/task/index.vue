@@ -1,6 +1,45 @@
 <!-- 任务管理 -->
 <template>
     <div>
+        <!-- 调度控制栏 -->
+        <el-row class="search-area">
+            <el-col :span="3"
+                    style="text-align:center">
+                <el-button v-if="scheduleState"
+                           @click="stopSchedule"
+                           type="warning">暂停调度</el-button>
+                <el-button v-else
+                           @click="startSchedule"
+                           type="success">开始调度</el-button>
+            </el-col>
+            <el-col :span="10"
+                    class="add-task-wrapper"
+                    :offset="1">
+                <span>任务类型: </span>
+                <el-select v-model="task_form.jobType"
+                           placeholder="job方式">
+                    <el-option label="Http"
+                               :value=1>
+                    </el-option>
+                    <el-option label="Assembly"
+                               :value=2>
+                    </el-option>
+                </el-select>
+                <span class="add-task-second-span">触发器类型: </span>
+                <el-select v-model="task_form.triggerType"
+                           placeholder="触发器方式">
+                    <el-option label="Cron"
+                               :value=1>
+                    </el-option>
+                    <el-option label="Simple"
+                               :value=2>
+                    </el-option>
+                </el-select>
+                <el-button type="primary"
+                           class="add-task-button"
+                           @click="showTaskDialog(true)">添加任务</el-button>
+            </el-col>
+        </el-row>
         <!-- 查询表单 -->
         <div class="search-area">
             <el-form label-width="80px"
@@ -34,9 +73,9 @@
                             <el-select v-model="search_form.triggerState"
                                        placeholder="根据状态搜索">
                                 <el-option v-for="item in triggerState"
-                                           :key="item.value"
-                                           :label="item.key"
-                                           :value="item.value">
+                                           :key="item.key"
+                                           :label="item.value"
+                                           :value="item.key">
                                 </el-option>
                             </el-select>
                         </el-form-item>
@@ -52,71 +91,101 @@
                         </el-form-item>
                     </el-col>
                 </el-row>
-
-                <div>
-                    <el-form-item>
-                        <el-dropdown>
-                            <el-button type="success"
-                                       size="small">
-                                添加任务<i class="el-icon-arrow-down el-icon--right"></i>
-                            </el-button>
-                            <el-dropdown-menu slot="dropdown">
-                                <el-dropdown-item @click.native="addCronTask">Cron任务</el-dropdown-item>
-                                <el-dropdown-item @click.native="addTask"
-                                                  divided>简单任务</el-dropdown-item>
-                            </el-dropdown-menu>
-                        </el-dropdown>
-                    </el-form-item>
-                </div>
             </el-form>
         </div>
+
         <!-- 数据展示表格 -->
         <el-table :data="tableData"
                   stripe>
-            <div slot="empty">
-                <div style="font-weight: bold;font-size: 16px;">没有数据</div>
-            </div>
-            <el-table-column label="组名"
-                             width="150"
-                             prop="groupName">
+            <el-table-column type="expand">
+                <template slot-scope="props">
+                    <el-form label-position="left"
+                             inline
+                             class="task-table-expand">
+                        <el-form-item label="任务开始时间:">
+                            <span>{{ props.row.beginTime }}</span>
+                        </el-form-item>
+                        <el-form-item label="任务结束时间:">
+                            <span>{{ props.row.endTime }}</span>
+                        </el-form-item>
+                        <el-form-item label="请求参数:">
+                            <span>{{ props.row.requestParameters }}</span>
+                        </el-form-item>
+                        <el-form-item label="请求头:"
+                                      v-if="props.row.jobType == 1">
+                            <span>{{ props.row.headers }}</span>
+                        </el-form-item>
+                        <el-form-item label="执行优先级:">
+                            <span>{{ props.row.priority }}</span>
+                        </el-form-item>
+                        <el-form-item label="是否邮件通知:">
+                            <span>{{ getMailMessageStr(props.row.mailMessage) }}</span>
+                        </el-form-item>
+                        <el-form-item label="邮件通知:"
+                                      v-if="props.row.mailMessage != 0">
+                            <span>{{ props.row.notifyEmail }}</span>
+                        </el-form-item>
+                        <el-form-item label="创建时间:">
+                            <span>{{ props.row.createdTime }}</span>
+                        </el-form-item>
+                    </el-form>
+                    <el-divider></el-divider>
+                </template>
             </el-table-column>
-            <el-table-column prop="name"
-                             width="150"
+            <el-table-column label="组名"
+                             prop="jobGroup">
+            </el-table-column>
+            <el-table-column prop="jobName"
                              label="任务名">
             </el-table-column>
             <el-table-column label="任务描述"
-                             width="150"
                              prop="description">
             </el-table-column>
             <el-table-column label="任务状态"
-                             width="100"
-                             prop="displayState">
+                             width="80">
+                <template slot-scope="scope">
+                    <span :class='`triggerState-color-${scope.row.triggerState}`'>
+                        {{getTriggerStateStr(scope.row.triggerState)}}
+                    </span>
+                </template>
             </el-table-column>
             <el-table-column label="请求地址"
-                             prop="requestUrl">
+                             prop="requestPath">
+            </el-table-column>
+            <el-table-column label="请求方法"
+                             prop="requestMethod">
             </el-table-column>
             <el-table-column label="请求间隔"
-                             width="100"
-                             prop="interval">
+                             width="120">
+                <template slot-scope="scope">
+                    <span v-if="scope.row.jobType == 2">
+                        {{scope.row.cron}}
+                    </span>
+                    <span v-else>
+                        {{`每${scope.row.intervalSecond}s一次`}}
+                        <br />
+                        {{`共${scope.row.intervalSecond+1}次`}}
+                        <!-- 加上本身的一次 -->
+                    </span>
+                </template>
             </el-table-column>
             <el-table-column label="上次执行时间"
+                             width="140"
                              prop="previousFireTime">
             </el-table-column>
             <el-table-column label="下次执行时间"
+                             width="140"
                              prop="nextFireTime">
             </el-table-column>
-            <el-table-column label="任务开始时间"
-                             prop="beginTime">
-            </el-table-column>
-            <el-table-column label="任务结束时间"
-                             prop="endTime">
-            </el-table-column>
-            <el-table-column label="操作">
+            <el-table-column label="操作"
+                             min-width="115">
                 <template slot-scope="scope">
                     <el-button size="mini"
+                               v-if="[0,3,4].includes(scope.row.triggerState)"
                                type="primary"
                                @click="handleStopJob(scope.row,scope.$index)">暂停</el-button>
                     <el-button size="mini"
+                               v-if="scope.row.triggerState == 1"
                                type="success"
                                @click="handleResumeJob(scope.row,scope.$index)">恢复</el-button>
                     <el-button size="mini"
@@ -125,7 +194,6 @@
                     <el-button size="mini"
                                type="warning"
                                @click="handleModifyJob(scope.row,scope.$index)">修改</el-button>
-                    <!-- :disabled="compareDate(scope.row.OperationTime)" -->
                 </template>
             </el-table-column>
         </el-table>
@@ -136,235 +204,58 @@
                            @pagination="search">
             <!-- <el-button type="success">测试按钮</el-button> -->
         </pagination-footer>
-        <!-- 添加任务弹窗 -->
-        <el-dialog title="添加任务"
-                   :visible.sync="dialogVisible"
-                   width="35%">
-            <el-form :model="task_form"
-                     label-width="100px"
-                     ref="task_form">
-                <el-row>
-                    <el-col :span="12">
-                        <el-form-item label="组名:"
-                                      prop="jobGroup"
-                                      :rules="[{ required: true, message: '组名必需输入', trigger: 'blur' }]">
-                            <el-input v-model.trim="task_form.jobGroup"
-                                      maxlength="70"
-                                      show-word-limit
-                                      placeholder="组名"></el-input>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="任务名:"
-                                      :rules="[{ required: true, message: '任务名必需输入', trigger: 'blur' }]"
-                                      prop="jobName">
-                            <el-input v-model.trim="task_form.jobName"
-                                      maxlength="70"
-                                      show-word-limit
-                                      placeholder="组名+任务名请勿重复"></el-input>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="16">
-                        <el-form-item label="任务描述:"
-                                      prop="description">
-                            <el-input v-model.trim="task_form.description"
-                                      maxlength="120"
-                                      show-word-limit
-                                      placeholder="该任务描述"></el-input>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="8">
-                        <el-form-item label="邮件提醒:"
-                                      prop="mailMessage">
-                            <el-select v-model="task_form.mailMessage">
-                                <!-- None = 0,Err = 1,All = 2 -->
-                                <el-option label="不通知"
-                                           :value=0>
-                                </el-option>
-                                <el-option label="错误通知"
-                                           :value=1>
-                                </el-option>
-                                <el-option label="全通知"
-                                           :value=2>
-                                </el-option>
-                            </el-select>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="12">
-                        <el-form-item label="请求地址:"
-                                      :rules="[{ required: true, message: '请求地址必需输入', trigger: 'blur' }]"
-                                      prop="requestUrl">
-                            <el-input v-model.trim="task_form.requestUrl"
-                                      placeholder="请求的URL地址"></el-input>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="请求方式:"
-                                      prop="requestType">
-                            <el-select v-model="task_form.requestType">
-                                <!-- None = 0,Get = 1,Post = 2,Put = 4,Delete = 8 -->
-                                <el-option label="Post"
-                                           :value=2>
-                                </el-option>
-                                <el-option label="Get"
-                                           :value=1>
-                                </el-option>
-                                <el-option label="Put"
-                                           :value=4>
-                                </el-option>
-                                <el-option label="Delete"
-                                           :value=8>
-                                </el-option>
-                            </el-select>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="12">
-                        <el-form-item label="开始日期:"
-                                      prop="beginTime">
-                            <div class="block">
-                                <el-date-picker v-model="task_form.beginTime"
-                                                format="yyyy-MM-dd HH:mm:ss"
-                                                value-format="yyyy-MM-ddTHH:mm:ss"
-                                                type="datetime"
-                                                placeholder="选择开始日期">
-                                </el-date-picker>
-                            </div>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="结束日期:"
-                                      prop="endTime">
-                            <div class="block">
-                                <el-date-picker v-model="task_form.endTime"
-                                                format="yyyy-MM-dd HH:mm:ss"
-                                                value-format="yyyy-MM-ddTHH:mm:ss"
-                                                type="datetime"
-                                                placeholder="选择结束日期">
-                                </el-date-picker>
-                            </div>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-row v-if="task_form.triggerType == 1">
-                    <el-col :span="12">
-                        <el-form-item label="Cron:"
-                                      :rules="[{ required: true, message: 'Cron表达式必需输入', trigger: 'blur' }]"
-                                      prop="cron">
-                            <el-input v-model.trim="task_form.cron"
-                                      placeholder="Cron"></el-input>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="表达式:">
-                            <a href="https://cron.qqe2.com/"
-                               target="_blank">Cron参考地址</a>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-row v-if="task_form.triggerType == 2">
-                    <el-col :span="12">
-                        <el-form-item label="重复间隔:"
-                                      :rules="[{ required: true, message: '重复间隔必需输入', trigger: 'blur' }]"
-                                      prop="intervalSecond">
-                            <el-input-number v-model="task_form.intervalSecond"
-                                             controls-position="right"
-                                             placeholder="每多少秒执行一次"
-                                             :min="1"
-                                             :max="2147483646"></el-input-number>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="重复次数:"
-                                      prop="runTimes">
-                            <el-input-number v-model="task_form.runTimes"
-                                             controls-position="right"
-                                             placeholder="重复多少次数"
-                                             :min="1"
-                                             :max="2147483646"></el-input-number>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="12">
-                        <el-form-item label="请求头:"
-                                      prop="headers">
-                            <el-input v-model.trim="task_form.headers"
-                                      placeholder="请求头参数，json格式转字段"></el-input>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="请求参数:"
-                                      prop="requestParameters">
-                            <el-input v-model.trim="task_form.requestParameters"
-                                      placeholder="请求Body参数"></el-input>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-            </el-form>
-            <div slot="footer">
-                <el-button @click="resetForm('task_form')">取 消</el-button>
-                <el-button type="primary"
-                           @click="submitForm('task_form')">确 定</el-button>
-            </div>
-        </el-dialog>
-    </div>
 
+        <task-dialog :task_form.sync="task_form"
+                     :dialog_visible.sync="dialogVisible"
+                     :is_add="isAddTask"
+                     @submitTask="submitTask"></task-dialog>
+    </div>
 </template>
 
 <script>
+import TaskDialog from './components/TaskDialog'
 const triggerStateMap = [
-    { key: '全部', value: null },
-    { key: '正常', value: 0 },
-    { key: '暂停', value: 1 },
-    { key: '完成', value: 2 },
-    { key: '异常', value: 3 },
-    { key: '阻塞', value: 4 },
-    { key: '已删除', value: 5 },
+    { key: null, value: '全部' },
+    { key: 0, value: '正常' },
+    { key: 1, value: '暂停' },
+    { key: 2, value: '完成' },
+    { key: 3, value: '异常' },
+    { key: 4, value: '阻塞' },
+    { key: 5, value: '已删除' },
 ]
 export default {
     data () {
         return {
+            scheduleState: true,//false 为暂停 true 为运行
             tableData: [],
             total: 0,
             search_form: {
-                "currentPage": 1,
-                "pageSize": 20,
-                "group": "",
-                "name": "",
-                "description": "",
-                "triggerState": null
+                currentPage: 1,
+                pageSize: 20,
+                group: "",
+                name: "",
+                description: "",
+                triggerState: null
             },
             triggerState: triggerStateMap,
             dialogVisible: false,
+            isAddTask: true,
             //triggerType: None = 0, Cron = 1, Simple = 2,
             task_form: {
                 mailMessage: 0,
-                triggerType: 0,
-                requestType: 2,//post
-                // jobName: '',
-                // jobGroup: '',
-                // beginTime: '',
-                // endTime: '',
-                // cron: '',
-                // runTimes: 0,
-                // intervalSecond: 0,
-                // requestUrl: '',
-                // requestParameters: '',
-                // headers: '',
-                // description: '',
+                jobType: 1,//任务类型
+                triggerType: 1,//触发器类型
+                description: '册谔谔谔'
             },
         };
     },
     //引入组件
-    components: {},
+    components: {
+        TaskDialog
+    },
     // 方法
     methods: {
+        /**查询 */
         search () {
             console.log(this.search_form);
             this.$api.quartz.taskList(this.search_form).then(res => {
@@ -375,51 +266,68 @@ export default {
                 }
             })
         },
-        addTask () {
-            this.dialogVisible = true
-            this.task_form.triggerType = 2
+        /**获取任务状态字符描述 */
+        getTriggerStateStr (state) {
+            let stateObj = this.triggerState.find(s => s.key == state)
+            if (stateObj) {
+                return stateObj.value;
+            }
+            return '未知'
         },
-        addCronTask () {
-            console.log(1)
-            this.task_form.triggerType = 1
-            this.dialogVisible = true
+        /**获取任务状态字符描述 */
+        getMailMessageStr (mailMessage) {
+            switch (mailMessage) {
+                case 0:
+                    return "不通知"
+                    break;
+                case 1:
+                    return "错误通知"
+                    break;
+                case 2:
+                    return "全量通知"
+                    break;
+                default:
+                    return "未知"
+            }
         },
+        /**显示task模态框 */
+        showTaskDialog (is_add) {
+            this.dialogVisible = true
+            this.isAddTask = is_add
+        },
+        /**重置查询框 */
         resetSearch (formName) {
             this.$refs[formName].resetFields();
         },
-        submitForm (formName) {
-            this.$refs[formName].validate((valid) => {
-                if (valid) {
-                    this.dialogVisible = false;
-                    console.log(this.task_form)
-                    this.$api.quartz.addJob(this.task_form).then(data => {
-                        console.log(data)
-                        if (data && data.success) {
-                            this.search();
-                            this.$message({
-                                type: 'success',
-                                message: '添加成功'
-                            })
-                            setTimeout(() => {
-                                this.$refs[formName].resetFields();
-                            }, 500);
-                        }
-                        else {
-                            this.$message(data.message || "添加失败")
-                        }
-                    })
-                } else {
-                    console.log('error submit!!');
-                    return false;
-                }
-            });
+        submitTask () {
+            console.log(this.task_form);
         },
-        resetForm (formName) {
-            this.$refs[formName].resetFields();
-            this.dialogVisible = false;
+        /**获取调度状态 */
+        getScheduleState () {
+            this.$api.quartz.getScheduleState().then(res => {
+                if (res && res.success) {
+                    this.scheduleState = res.data
+                }
+            })
+        },
+        /** 开始 */
+        startSchedule () {
+            this.$api.quartz.startSchedule().then(res => {
+                if (res && res.success) {
+                    this.scheduleState = res.data
+                }
+            })
+        },
+        /** 暂停 */
+        stopSchedule () {
+            this.$api.quartz.stopSchedule().then(res => {
+                if (res && res.success) {
+                    this.scheduleState = res.data
+                }
+            })
         },
         handleStopJob (row, index) {
-            this.$api.quartz.stopJob({ name: row.name, group: row.groupName }).then(data => {
+            this.$api.quartz.stopJob({ name: row.jobName, group: row.jobGroup }).then(data => {
                 if (data && data.success) {
                     this.$message({
                         type: 'success',
@@ -427,13 +335,10 @@ export default {
                     })
                     this.search();
                 }
-                else {
-                    this.$message(data.message || "暂停失败")
-                }
             })
         },
         handleResumeJob (row, index) {
-            this.$api.quartz.resumeJob({ name: row.name, group: row.groupName }).then(data => {
+            this.$api.quartz.resumeJob({ name: row.jobName, group: row.jobGroup }).then(data => {
                 if (data && data.success) {
                     this.$message({
                         type: 'success',
@@ -441,13 +346,10 @@ export default {
                     })
                     this.search();
                 }
-                else {
-                    this.$message(data.message || "恢复失败")
-                }
             })
         },
         handleRemoveJob (row, index) {
-            this.$api.quartz.removeJob({ name: row.name, group: row.groupName }).then(data => {
+            this.$api.quartz.removeJob({ name: row.jobName, group: row.jobGroup }).then(data => {
                 if (data && data.success) {
                     this.$message({
                         type: 'success',
@@ -455,35 +357,20 @@ export default {
                     })
                     this.search();
                 }
-                else {
-                    this.$message(data.message || "删除失败")
-                }
             })
         },
         handleModifyJob (row, index) {
-            this.$api.quartz.resumeJob({ name: row.name, group: row.groupName }).then(data => {
-                if (data && data.success) {
-                    this.$message({
-                        type: 'success',
-                        message: '恢复成功'
-                    })
-                    this.search();
-                }
-                else {
-                    this.$message(data.message || "恢复失败")
-                }
-            })
+            this.task_form = Object.assign({}, row)
+            this.showTaskDialog(false)
         },
     },
     // 计算属性
     computed: {},
-    //未挂载DOM,不能访问ref为空数组
-    //可在这结束loading，还做一些初始化，实现函数自执行,
-    //可以对data数据进行操作，可进行一些请求，请求不易过多，避免白屏时间太长。
-    created () { },
-    //可在这发起后端请求，拿回数据，配合路由钩子做一些事情；可对DOM 进行操作
+    created () {
+        this.getScheduleState()
+    },
     mounted () {
-        this.search();
+        this.search()
     }
 };
 </script>
@@ -494,15 +381,50 @@ export default {
     }
 }
 
-.el-date-editor.el-input,
-.el-date-editor.el-input__inner {
-    width: auto !important;
-    width: fit-content !important;
+.add-task-wrapper {
+    display: flex;
+    align-items: center;
+    .el-select {
+        margin-left: 5px;
+        width: 120px;
+    }
+    .add-task-second-span {
+        margin-left: 15px;
+    }
+    .add-task-button {
+        margin-left: 15px;
+    }
 }
-.el-input-number {
-    width: 100% !important;
+
+.task-table-expand {
+    font-size: 0;
+    label {
+        width: 90px;
+        color: #99a9bf;
+    }
+    .el-form-item {
+        margin-right: 0;
+        margin-bottom: 0;
+        width: 50%;
+    }
 }
-.el-select {
-    width: 100% !important;
+
+.triggerState-color-0 {
+    color: #909399;
+}
+.triggerState-color-1 {
+    color: #e6a23c;
+}
+.triggerState-color-2 {
+    color: #67c23a;
+}
+.triggerState-color-3 {
+    color: #f56c6c;
+}
+.triggerState-color-4 {
+    color: #f5dbb3;
+}
+.triggerState-color-5 {
+    color: #d90f0f;
 }
 </style>
