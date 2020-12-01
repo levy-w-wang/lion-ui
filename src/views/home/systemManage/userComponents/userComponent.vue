@@ -153,7 +153,7 @@ export default {
         searchData () {
             this.$api.user.userList(this.pageSize, this.currentPage, this.searchForm).then(res => {
                 if (res.code == 200) {
-                    this.tableData = res.data.data
+                    this.tableData = res.data.pageData
                     this.total = res.data.recordTotal
                     this.currentPage = res.data.currentPage
                     this.pageSize = res.data.pageSize

@@ -310,7 +310,7 @@ export default {
         searchData () {
             this.$api.role.rolePage(this.searchForm).then(res => {
                 if (res.code == 200) {
-                    this.tableData = res.data.data
+                    this.tableData = res.data.pageData
                     this.total = res.data.recordTotal
                     this.searchForm.currentPage = res.data.currentPage
                     this.searchForm.pageSize = res.data.pageSize

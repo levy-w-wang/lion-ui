@@ -9,11 +9,11 @@
         </div>
 
         <el-pagination :current-page.sync="currentPage"
-                       :page-size.sync="pageSize"
-                       :total="total"
                        @size-change="handleSizeChange"
                        @current-change="handleCurrentChange"
+                       :page-size.sync="pageSize"
                        :page-sizes="pageSizes"
+                       :total="total"
                        layout="total, sizes, prev, pager, next, jumper"
                        :background="background">
         </el-pagination>
@@ -23,6 +23,7 @@
 <script>
 export default {
     props: {
+        //总条数
         total: {
             required: true,
             type: Number

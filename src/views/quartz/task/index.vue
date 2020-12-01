@@ -1,38 +1,60 @@
 <!-- 任务管理 -->
-<!--  -->
 <template>
     <div>
         <!-- 查询表单 -->
         <div class="search-area">
-            <el-form label-width="100px">
+            <el-form label-width="80px"
+                     :model="search_form"
+                     ref="search_form">
                 <el-row>
-                    <el-col :span="4">
-                        <el-form-item label="组名:">
-                            <el-input v-model="search_form.groupName"
+                    <el-col :span="3">
+                        <el-form-item label="组  名:"
+                                      prop="group">
+                            <el-input v-model="search_form.group"
                                       placeholder="以组名搜索"></el-input>
                         </el-form-item>
                     </el-col>
-
-                    <el-col :span="4">
-                        <el-form-item label="任务名:">
-                            <el-input v-model="search_form.jobName"
+                    <el-col :span="3">
+                        <el-form-item label="任务名:"
+                                      prop="name">
+                            <el-input v-model="search_form.name"
                                       placeholder="以任务名搜索"></el-input>
                         </el-form-item>
                     </el-col>
-
+                    <el-col :span="3">
+                        <el-form-item label="描  述:"
+                                      prop="description">
+                            <el-input v-model="search_form.description"
+                                      placeholder="描述搜索"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="3">
+                        <el-form-item label="状  态:"
+                                      prop="triggerState">
+                            <el-select v-model="search_form.triggerState"
+                                       placeholder="根据状态搜索">
+                                <el-option v-for="item in triggerState"
+                                           :key="item.value"
+                                           :label="item.key"
+                                           :value="item.value">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="3">
+                        <el-form-item>
+                            <el-button type="primary"
+                                       size="small"
+                                       @click="search">搜索</el-button>
+                            <el-button type="info"
+                                       size="small"
+                                       @click="resetSearch('search_form')">重置</el-button>
+                        </el-form-item>
+                    </el-col>
                 </el-row>
 
-                <div class="form-column send-buttons">
+                <div>
                     <el-form-item>
-                        <el-button type="primary"
-                                   size="small"
-                                   @click="search">搜索</el-button>
-                        <el-button type="info"
-                                   size="small"
-                                   @click="resetSearch">重置</el-button>
-                    </el-form-item>
-                    <el-form-item>
-
                         <el-dropdown>
                             <el-button type="success"
                                        size="small">
@@ -107,6 +129,13 @@
                 </template>
             </el-table-column>
         </el-table>
+        <!-- 分页菜单栏 -->
+        <pagination-footer :total="total"
+                           :page.sync="search_form.currentPage"
+                           :limit.sync="search_form.pageSize"
+                           @pagination="search">
+            <!-- <el-button type="success">测试按钮</el-button> -->
+        </pagination-footer>
         <!-- 添加任务弹窗 -->
         <el-dialog title="添加任务"
                    :visible.sync="dialogVisible"
@@ -289,10 +318,29 @@
 </template>
 
 <script>
+const triggerStateMap = [
+    { key: '全部', value: null },
+    { key: '正常', value: 0 },
+    { key: '暂停', value: 1 },
+    { key: '完成', value: 2 },
+    { key: '异常', value: 3 },
+    { key: '阻塞', value: 4 },
+    { key: '已删除', value: 5 },
+]
 export default {
     data () {
         return {
             tableData: [],
+            total: 0,
+            search_form: {
+                "currentPage": 1,
+                "pageSize": 20,
+                "group": "",
+                "name": "",
+                "description": "",
+                "triggerState": null
+            },
+            triggerState: triggerStateMap,
             dialogVisible: false,
             //triggerType: None = 0, Cron = 1, Simple = 2,
             task_form: {
@@ -311,10 +359,6 @@ export default {
                 // headers: '',
                 // description: '',
             },
-            search_form: {
-                groupName: '',
-                jobName: ''
-            }
         };
     },
     //引入组件
@@ -322,9 +366,12 @@ export default {
     // 方法
     methods: {
         search () {
-            this.$api.quartz.getAllJob(this.search_form).then(data => {
-                if (data && data.success) {
-                    this.tableData = data.data;
+            console.log(this.search_form);
+            this.$api.quartz.taskList(this.search_form).then(res => {
+                if (res && res.success) {
+                    console.log(res);
+                    this.total = res.data.recordTotal
+                    this.tableData = res.data.pageData;
                 }
             })
         },
@@ -337,11 +384,8 @@ export default {
             this.task_form.triggerType = 1
             this.dialogVisible = true
         },
-        resetSearch () {
-            this.search_form = {
-                groupName: '',
-                jobName: ''
-            }
+        resetSearch (formName) {
+            this.$refs[formName].resetFields();
         },
         submitForm (formName) {
             this.$refs[formName].validate((valid) => {
@@ -445,16 +489,11 @@ export default {
 </script>
 <style lang="scss" scoped>
 .search-area {
-    padding: 10px;
-    margin: 10px 0 0 0;
-    background: #f8f8f8;
     .form-column {
         display: flex;
     }
 }
-.el-button + .el-button {
-    margin-left: 0px !important;
-}
+
 .el-date-editor.el-input,
 .el-date-editor.el-input__inner {
     width: auto !important;

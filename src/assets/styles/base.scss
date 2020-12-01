@@ -26,7 +26,7 @@ $header-height: 45px;
     font-size: 18px;
   }
 
-
+/*头部导航栏*/
 .header {
     .el-menu--horizontal > .el-menu-item {
         height: $header-height;
@@ -90,9 +90,11 @@ a {
 .search-form {
     padding: 10px 0px 15px 25px;
 }
+/*popup弹框样式*/
 .el-popup-parent--hidden {
     overflow: auto !important;
 }
+/*分页栏样式*/
 .public-pagination {
     padding: 25px 30px 25px 30px;
     display: -webkit-box;
@@ -108,13 +110,22 @@ a {
     -ms-flex-pack: justify;
     justify-content: space-between;
 }
+/*查询条件框统一样式*/
+.search-area {
+    padding: 10px 2px 0px;
+    margin: 5px 0;
+    background: #f8f8f8;
+}
 
+/*按钮样式*/
 .btn_add{
     color:#409EeF
 }
+/*按钮样式*/
 .btn_edit{
     color:#8CC5FF
 }
+/*按钮样式*/
 .btn_delete{
     color:#F56C6C
 }
