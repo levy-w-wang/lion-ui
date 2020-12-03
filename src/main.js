@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import './plugins/element.js'
+import objectHelper from '@/utils/objectHelper'
 import api from '@/api'
 import bus from '@/Bus'
 import '@/assets/styles/base.scss'
@@ -17,6 +18,7 @@ Vue.component("pagination-footer", PaginationFooter);
 Vue.config.productionTip = false
 Vue.prototype.$ELEMENT = { size: 'small', zIndex: 3000 }
 
+Vue.prototype.$objectHelper = objectHelper
 Vue.prototype.$api = api
 Vue.prototype.$bus = bus
 Vue.prototype.$log = window.console.log

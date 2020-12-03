@@ -12,29 +12,9 @@
                            @click="startSchedule"
                            type="success">开始调度</el-button>
             </el-col>
-            <el-col :span="10"
+            <el-col :span="3"
                     class="add-task-wrapper"
                     :offset="1">
-                <span>任务类型: </span>
-                <el-select v-model="task_form.jobType"
-                           placeholder="job方式">
-                    <el-option label="Http"
-                               :value=1>
-                    </el-option>
-                    <el-option label="Assembly"
-                               :value=2>
-                    </el-option>
-                </el-select>
-                <span class="add-task-second-span">触发器类型: </span>
-                <el-select v-model="task_form.triggerType"
-                           placeholder="触发器方式">
-                    <el-option label="Cron"
-                               :value=1>
-                    </el-option>
-                    <el-option label="Simple"
-                               :value=2>
-                    </el-option>
-                </el-select>
                 <el-button type="primary"
                            class="add-task-button"
                            @click="showTaskDialog(true)">添加任务</el-button>
@@ -164,7 +144,7 @@
                     <span v-else>
                         {{`每${scope.row.intervalSecond}s一次`}}
                         <br />
-                        {{`共${scope.row.intervalSecond+1}次`}}
+                        {{`共${scope.row.intervalSecond + 1}次`}}
                         <!-- 加上本身的一次 -->
                     </span>
                 </template>
@@ -240,12 +220,13 @@ export default {
             triggerState: triggerStateMap,
             dialogVisible: false,
             isAddTask: true,
+            //jobType 1 = http, 2 = Assembly
             //triggerType: None = 0, Cron = 1, Simple = 2,
             task_form: {
                 mailMessage: 0,
-                jobType: 1,//任务类型
-                triggerType: 1,//触发器类型
-                description: '册谔谔谔'
+                jobType: 1,// 任务类型
+                triggerType: 1,// 触发器类型
+                priority: 5,// 默认优先级5
             },
         };
     },
@@ -301,6 +282,22 @@ export default {
         },
         submitTask () {
             console.log(this.task_form);
+            //             this.$api.quartz.addJob(this.taskData).then(data => {
+            //     console.log(data)
+            //     if (data && data.success) {
+            //         this.search();
+            //         this.$message({
+            //             type: 'success',
+            //             message: '添加成功'
+            //         })
+            //         setTimeout(() => {
+            //             this.$refs[formName].resetFields();
+            //         }, 500);
+            //     }
+            //     else {
+            //         this.$message(data.message || "添加失败")
+            //     }
+            // })
         },
         /**获取调度状态 */
         getScheduleState () {
