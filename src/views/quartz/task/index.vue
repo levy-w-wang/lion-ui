@@ -12,9 +12,29 @@
                            @click="startSchedule"
                            type="success">开始调度</el-button>
             </el-col>
-            <el-col :span="3"
+            <el-col :span="10"
                     class="add-task-wrapper"
                     :offset="1">
+                <!-- <span>任务类型: </span>
+                <el-select v-model="task_form.jobType"
+                           placeholder="job方式">
+                    <el-option label="Http"
+                               :value=1>
+                    </el-option>
+                    <el-option label="Assembly"
+                               :value=2>
+                    </el-option>
+                </el-select>
+                <span class="add-task-second-span">触发器类型: </span>
+                <el-select v-model="task_form.triggerType"
+                           placeholder="触发器方式">
+                    <el-option label="Cron"
+                               :value=1>
+                    </el-option>
+                    <el-option label="Simple"
+                               :value=2>
+                    </el-option>
+                </el-select> -->
                 <el-button type="primary"
                            class="add-task-button"
                            @click="showTaskDialog(true)">添加任务</el-button>
@@ -134,17 +154,25 @@
             </el-table-column>
             <el-table-column label="请求方法"
                              prop="requestMethod">
+                <template slot-scope="scope">
+                    <span v-if="scope.row.jobType == 1">
+                        {{getHttpMethodStr(scope.row.requestMethod)}}
+                    </span>
+                    <span v-else>
+                        {{scope.row.requestMethod}}
+                    </span>
+                </template>
             </el-table-column>
             <el-table-column label="请求间隔"
                              width="120">
                 <template slot-scope="scope">
-                    <span v-if="scope.row.jobType == 2">
+                    <span v-if="scope.row.triggerState == 2">
                         {{scope.row.cron}}
                     </span>
                     <span v-else>
                         {{`每${scope.row.intervalSecond}s一次`}}
                         <br />
-                        {{`共${scope.row.intervalSecond + 1}次`}}
+                        {{`共${scope.row.runTimes + 1}次`}}
                         <!-- 加上本身的一次 -->
                     </span>
                 </template>
@@ -208,13 +236,19 @@ export default {
         return {
             scheduleState: true,//false 为暂停 true 为运行
             tableData: [],
+            httpMethod: [
+                { key: '0', value: 'Post' },
+                { key: '1', value: 'Get' },
+                { key: '2', value: 'Post' },
+                { key: '4', value: 'Put' },
+                { key: '8', value: 'Delete' },],//None = 0,Get = 1,Post = 2,Put = 4,Delete = 8
             total: 0,
             search_form: {
                 currentPage: 1,
                 pageSize: 20,
-                group: "",
-                name: "",
-                description: "",
+                group: '',
+                name: '',
+                description: '',
                 triggerState: null
             },
             triggerState: triggerStateMap,
@@ -222,12 +256,22 @@ export default {
             isAddTask: true,
             //jobType 1 = http, 2 = Assembly
             //triggerType: None = 0, Cron = 1, Simple = 2,
+            reset_task_form: {
+                mailMessage: 0,
+                jobType: 1,// 任务类型
+                triggerType: 1,// 触发器类型
+                priority: 5,// 默认优先级5
+                requestParameters: '{}',
+                headers: '{}',
+            },
             task_form: {
                 mailMessage: 0,
                 jobType: 1,// 任务类型
                 triggerType: 1,// 触发器类型
                 priority: 5,// 默认优先级5
-            },
+                requestParameters: '{}',
+                headers: '{}',
+            }
         };
     },
     //引入组件
@@ -238,10 +282,8 @@ export default {
     methods: {
         /**查询 */
         search () {
-            console.log(this.search_form);
             this.$api.quartz.taskList(this.search_form).then(res => {
                 if (res && res.success) {
-                    console.log(res);
                     this.total = res.data.recordTotal
                     this.tableData = res.data.pageData;
                 }
@@ -252,6 +294,14 @@ export default {
             let stateObj = this.triggerState.find(s => s.key == state)
             if (stateObj) {
                 return stateObj.value;
+            }
+            return '未知'
+        },
+        /**获取Http字符描述 */
+        getHttpMethodStr (state) {
+            let httpObj = this.httpMethod.find(s => s.key == state)
+            if (httpObj) {
+                return httpObj.value;
             }
             return '未知'
         },
@@ -280,24 +330,33 @@ export default {
         resetSearch (formName) {
             this.$refs[formName].resetFields();
         },
+        /**提交任务 */
         submitTask () {
             console.log(this.task_form);
-            //             this.$api.quartz.addJob(this.taskData).then(data => {
-            //     console.log(data)
-            //     if (data && data.success) {
-            //         this.search();
-            //         this.$message({
-            //             type: 'success',
-            //             message: '添加成功'
-            //         })
-            //         setTimeout(() => {
-            //             this.$refs[formName].resetFields();
-            //         }, 500);
-            //     }
-            //     else {
-            //         this.$message(data.message || "添加失败")
-            //     }
-            // })
+            if (this.isAddTask) {
+                this.$api.quartz.addtask(this.task_form).then(res => {
+                    if (res && res.success) {
+                        this.$message.success('添加成功')
+                        this.dialogVisible = false
+                        setTimeout(() => {
+                            this.task_form = this.reset_task_form
+                            this.search()
+                        }, 1)
+                    }
+                })
+            }
+            else {
+                this.$api.quartz.modifyJob(this.task_form).then(res => {
+                    if (res && res.success) {
+                        this.$message.success('修改成功')
+                        this.dialogVisible = false
+                        setTimeout(() => {
+                            this.task_form = this.reset_task_form
+                            this.search()
+                        }, 1)
+                    }
+                })
+            }
         },
         /**获取调度状态 */
         getScheduleState () {

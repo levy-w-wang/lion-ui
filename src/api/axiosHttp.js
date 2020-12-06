@@ -20,12 +20,9 @@ axios.interceptors.request.use(
         //判断是否存在token,如果存在，则在header上加上token
         let token = store.getters.token
         if (token) {
-            config.headers.token = token
+            config.headers['token'] = token
         }
-        if (config.method == 'post' || config.method == 'put') {
-            //将数据转成string
-            config.data = JSON.stringify(config.data)
-        } else if (config.method == 'get') {
+        if (config.method == 'get') {
             //&& browser.isIE
             //给Get添加时间戳 解决IE缓存问题
             let symbol = config.url.indexOf('?') >= 0 ? '&' : '?'

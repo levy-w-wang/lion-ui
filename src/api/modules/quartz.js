@@ -13,7 +13,6 @@ const quartz = {
     stopJob (params) {
         return axios.put('/api/quartz/stopjob', params)
     },
-
     /** 删除任务 */
     removeJob (params) {
         return axios.delete('/api/quartz/removejob', { data: params })

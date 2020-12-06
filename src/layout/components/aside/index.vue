@@ -59,13 +59,13 @@ export default {
         $route: 'handleRoute',
     },
     created () {
-        console.log(this.$route)
+        // console.log(this.$route)
         this.handleRoute(this.$route)
     },
     methods: {
         // 路由操作处理
         handleRoute (route) {
-            console.log(route);
+            // console.log(route);
             // tab标签页选中, 如果不存在则先添加
             var tab = this.mainTabs.filter((item) => item.name === route.name)[0]
             if (!tab) {

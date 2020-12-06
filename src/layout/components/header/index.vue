@@ -120,7 +120,7 @@ export default {
     methods: {
         // 切换主题
         onThemeChange (themeColor) {
-            console.log(themeColor)
+            // console.log(themeColor)
             this.$store.commit("setThemeColor", themeColor);
         },
         openUrl (url) {
@@ -130,7 +130,6 @@ export default {
             this.$confirm('确认退出吗?', '提示', { type: 'warning', })
                 .then(() => {
                     this.$api.user.logout().then(res => {
-                        console.log(res);
                         if (res && res.code == 200) {
                             this.$store.commit('logout', this.$route.fullPath)
                         }

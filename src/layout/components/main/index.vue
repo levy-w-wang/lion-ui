@@ -111,6 +111,10 @@ export default {
         },
         // tabs, 关闭全部
         tabsCloseAllHandle () {
+            // 当只有首页时，不允许关掉。 若是其它页面可关掉后，push 首页进去
+            if (this.mainTabs.length == 1 && this.mainTabs[0].name == 'index') {
+                return
+            }
             this.mainTabs = []
             this.$router.push('/')
         },

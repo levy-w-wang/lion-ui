@@ -61,6 +61,7 @@
                                   prop="jobType"
                                   :rules="[{ required: true, message: '任务类型必选', trigger: 'blur' }]">
                         <el-select v-model="taskData.jobType"
+                                   @change="jobTypeChange"
                                    placeholder="job方式">
                             <el-option label="Http"
                                        :value=1>
@@ -99,6 +100,7 @@
                                 <el-input v-model.trim="taskData.jobGroup"
                                           maxlength="50"
                                           show-word-limit
+                                          :disabled="!is_add"
                                           placeholder="组名"></el-input>
                             </el-form-item>
                         </el-col>
@@ -109,6 +111,7 @@
                                 <el-input v-model.trim="taskData.jobName"
                                           maxlength="50"
                                           show-word-limit
+                                          :disabled="!is_add"
                                           placeholder="任务名"></el-input>
                             </el-form-item>
                         </el-col>
@@ -126,7 +129,7 @@
                         <el-col :span="8">
                             <el-form-item label="任务优先级:"
                                           :rules="[{ required: true, message: '任务优先级必需输入', trigger: 'blur' }]"
-                                          prop="intervalSecond">
+                                          prop="priority">
                                 <el-input-number v-model="taskData.priority"
                                                  controls-position="right"
                                                  :min="1"
@@ -138,7 +141,7 @@
                         <el-col :span="12">
                             <el-form-item label="请求地址:"
                                           :rules="[{ required: true, message: '请求地址必需输入', trigger: 'blur' }]"
-                                          prop="requestUrl">
+                                          prop="requestPath">
                                 <el-input v-model.trim="taskData.requestPath"
                                           maxlength="56"
                                           show-word-limit
@@ -147,21 +150,21 @@
                         </el-col>
                         <el-col :span="12">
                             <el-form-item label="请求方式:"
-                                          prop="requestType"
+                                          prop="requestMethod"
                                           :rules="{required: true, message: '请求方式必选', trigger: 'blur' }">
                                 <el-select v-model="taskData.requestMethod">
                                     <!-- None = 0,Get = 1,Post = 2,Put = 4,Delete = 8 -->
                                     <el-option label="Post"
-                                               :value=2>
+                                               value="2">
                                     </el-option>
                                     <el-option label="Get"
-                                               :value=1>
+                                               value="1">
                                     </el-option>
                                     <el-option label="Put"
-                                               :value=4>
+                                               value="4">
                                     </el-option>
                                     <el-option label="Delete"
-                                               :value=8>
+                                               value="8">
                                     </el-option>
                                 </el-select>
                             </el-form-item>
@@ -211,7 +214,7 @@
                                 <div class="block">
                                     <el-date-picker v-model="taskData.endTime"
                                                     format="yyyy-MM-dd HH:mm:ss"
-                                                    value-format="yyyy-MM-ddTHH:mm:ss"
+                                                    value-format="yyyy-MM-dd HH:mm:ss"
                                                     type="datetime"
                                                     placeholder="选择结束日期">
                                     </el-date-picker>
@@ -298,7 +301,7 @@
                 <el-tab-pane label="邮箱配置"
                              name="email">
                     <el-row>
-                        <el-col :span="8">
+                        <el-col :span="12">
                             <el-form-item label="邮件提醒:"
                                           prop="mailMessage">
                                 <el-select v-model="taskData.mailMessage">
@@ -313,6 +316,19 @@
                                                :value=2>
                                     </el-option>
                                 </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="24"
+                                v-if="taskData.mailMessage != 0">
+                            <el-form-item label="通知邮箱:"
+                                          prop="notifyEmail"
+                                          :rules="{validator:validateEmail,trigger: 'blur'}">
+                                <el-input type="textarea"
+                                          v-model.trim="taskData.notifyEmail"
+                                          :autosize="{ minRows: 1, maxRows: 3}"
+                                          placeholder="接收邮箱，多个以英文逗号分隔"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -355,13 +371,33 @@ export default {
             },
             validateRepeatKey: (rule, value, callback) => {
                 const repeatData = this.dynamicDic.dynamicKvArray.filter(ele => ele.key == value)
-                console.log(repeatData);
                 if (repeatData.length > 1) {
-                    callback(new Error(`已存在${value},请勿重复设置`));
+                    callback(new Error(`已存在键:${value},请勿重复设置`));
                 } else {
                     callback();
                 }
-            }
+            },
+            validateEmail: (rule, value, callback) => {
+                if (this.taskData.mailMessage != 0) {
+                    if (!value) {
+                        callback(new Error(`请设置通知邮箱`))
+                        return
+                    }
+                    const reg = /^[A-Za-z0-9\u4e00-\u9fa5_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
+                    var emailArray = value.split(',')
+                    for (let index = 0; index < emailArray.length; index++) {
+                        const element = emailArray[index]
+                        if (!reg.test(value)) {
+                            callback(new Error(`请正确设置通知邮箱`))
+                            return
+                        }
+                    }
+                    callback();
+                }
+                else {
+                    callback();
+                }
+            },
         };
     },
     //引入组件 
@@ -395,6 +431,13 @@ export default {
                 value: '',
             });
         },
+        /**任务类型改变 */
+        jobTypeChange () {
+            this.$nextTick(() => {
+                this.taskData.requestPath = null
+                this.taskData.requestMethod = null
+            })
+        },
         //设置当前动态参数
         submitDynamicDic () {
             this.$refs['dynamicDic'].validate((valid) => {
@@ -412,26 +455,29 @@ export default {
                 }
             });
         },
+        /**重置当前任务 */
         resetTask () {
             this.dialogVisible = false
-            this.activeTabName = 'task'
-            this.taskData = {
-                mailMessage: 0,
-                jobType: 1,// 任务类型
-                triggerType: 1,// 触发器类型
-                priority: 5,// 默认优先级5
-                requestParameters: "{}",
-                headers: "{}",
-            }
+            setTimeout(() => {
+                this.activeTabName = 'task'
+                this.$refs['taskData'].resetFields();
+                this.taskData = {
+                    mailMessage: 0,
+                    jobType: 1,// 任务类型
+                    triggerType: 1,// 触发器类型
+                    priority: 5,// 默认优先级5
+                    requestParameters: "{}",
+                    headers: "{}",
+                }
+            }, 1)
         },
         submitTask () {
             this.$refs['taskData'].validate((valid) => {
                 if (valid) {
-                    this.dialogVisible = false
+                    // this.dialogVisible = false
                     this.activeTabName = 'task'
                     this.$emit('submitTask')
                 } else {
-                    console.log('error submit!!');
                     return false;
                 }
             });
