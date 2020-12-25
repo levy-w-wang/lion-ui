@@ -65,16 +65,23 @@
                                 <img src="@assets/img/user.jpg" />
                                 {{ $store.getters.userInfo.nickName }}<i class="el-icon-caret-bottom"></i>
                             </span>
-                            <el-dropdown-menu slot="dropdown">
-                                <el-dropdown-item>
-                                    <router-link to="/"><i class="el-icon-s-home"></i>首页</router-link>
-                                </el-dropdown-item>
-                                <el-dropdown-item>
-                                    <router-link to="/"><i class="el-icon-s-custom"></i>我的主页</router-link>
-                                </el-dropdown-item>
-                                <el-dropdown-item divided>
-                                    <a @click="loginOut()"><i class="el-icon-switch-button"></i>登出</a>
-                                </el-dropdown-item>
+                            <el-dropdown-menu slot="dropdown"
+                                              style="width:150px">
+                                <router-link to="/">
+                                    <el-dropdown-item>
+                                        <i class="el-icon-s-home"></i>首页
+                                    </el-dropdown-item>
+                                </router-link>
+                                <router-link to="/">
+                                    <el-dropdown-item>
+                                        <i class="el-icon-s-custom"></i>我的主页
+                                    </el-dropdown-item>
+                                </router-link>
+                                <a @click="loginOut()">
+                                    <el-dropdown-item divided>
+                                        <i class="el-icon-switch-button"></i>登出
+                                    </el-dropdown-item>
+                                </a>
                             </el-dropdown-menu>
                         </el-dropdown>
                     </div>
