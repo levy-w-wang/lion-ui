@@ -76,6 +76,7 @@ export default {
                 captcha: '',
                 uuid: ''
             },
+            notifyObj: null,
             captchaBase64: '',
             loginFormRules: {
                 email: [{ required: true, message: '请输入昵称', trigger: 'blur' }],
@@ -99,7 +100,12 @@ export default {
                             if (this.$route.query.redirect !== undefined) {
                                 redirect = this.$route.query.redirect
                             }
-
+                            setTimeout(() => {
+                                if (this.notifyObj) {
+                                    this.notifyObj.close()
+                                }
+                                this.notifyObj = null
+                            }, 800)
                             this.$message({
                                 type: 'success',
                                 message: '登录成功',
@@ -148,6 +154,15 @@ export default {
             window.location.reload()
         }
         this.getCaptcha();
+    },
+    mounted () {
+        this.notifyObj = this.$notify({
+            title: '提示',
+            dangerouslyUseHTMLString: true,
+            message: '管理员：levywang123@gmail.com<p/>用户账号：levy_wang@qq.com<p/>密码均为：qwer1234<p/><strong>请不要修改密码和删除基础数据，将不定期重置数据</strong>',
+            duration: 0,
+            iconClass: 'el-icon-s-opportunity',
+        })
     },
 }
 </script>

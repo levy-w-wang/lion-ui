@@ -157,7 +157,7 @@
                     <el-form-item label="资源路径:">
                         <el-input v-model.trim="operatePerm.url"
                                   style="width: 190px;"
-                                  placeholder="页面路径、按钮权限控制标识"></el-input>
+                                  placeholder="页面路径、权限控制标识"></el-input>
                     </el-form-item>
                     <el-form-item label="图标:"
                                   v-show="!isButton">

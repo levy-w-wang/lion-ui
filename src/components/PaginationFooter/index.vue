@@ -1,14 +1,14 @@
 <!-- 分页插件封装 -->
 <template>
-
-    <div class="public-pagination">
+    <div class="public-pagination"
+         v-if="($slots.default && $slots.default.length > 0) || total > 0">
         <div class="operation">
-            <slot>
+            <slot v-show="$slots.default && $slots.default.length > 0">
                 <!-- 使用 底部按钮 -->
             </slot>
         </div>
-
-        <el-pagination :current-page.sync="currentPage"
+        <el-pagination v-show="total > 0"
+                       :current-page.sync="currentPage"
                        @size-change="handleSizeChange"
                        @current-change="handleCurrentChange"
                        :page-size.sync="pageSize"

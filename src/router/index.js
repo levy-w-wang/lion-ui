@@ -94,6 +94,7 @@ const routes = [
 
 const defultRouter = () => {
     return new VueRouter({
+        mode: 'history',
         routes: routes
     })
 }

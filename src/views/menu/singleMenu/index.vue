@@ -2,6 +2,8 @@
     <div class="site-wrapper site-page">
         <div class="site-content__wrapper">
             <div class="site-content">
+                <el-button type="primary"
+                           v-perms="'Test'">权限测试按钮</el-button>
                 <h2 class="not-found-title">单级菜单</h2>
             </div>
         </div>

@@ -13,7 +13,7 @@
             <el-dropdown class="tabs-tools"
                          :show-timeout="0"
                          trigger="hover">
-                <div style="font-size:20px;width:50px;">
+                <div class="arrow-down-div">
                     <i class="el-icon-arrow-down"></i>
                 </div>
                 <el-dropdown-menu slot="dropdown">
@@ -174,6 +174,11 @@ export default {
         border-bottom-width: 1px;
         border-bottom-style: solid;
         background: rgba(255, 255, 255, 1);
+        .arrow-down-div {
+            font-size: 20px;
+            width: 50px;
+            text-align: center;
+        }
     }
     .tabs-tools:hover {
         background: rgba(200, 206, 206, 1);
