@@ -238,7 +238,10 @@ export default {
                 roleName: null,
             },
             dialogVisible: false,//新增&编辑用户对话框
-            roleData: {},
+            roleData: {
+                roleName: '',
+                roleDesc: ''
+            },
             tableData: [],
             currentMenuTree: [],//当前用户拥有的菜单树权限
             currentMenuTreeCopy: [],//菜单树copy对象

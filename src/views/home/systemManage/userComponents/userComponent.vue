@@ -141,7 +141,11 @@ export default {
                 email: null
             },
             dialogVisible: false,
-            userData: {},
+            userData: {
+                nickName: '',
+                email: '',
+                pwd: ''
+            },
             tableData: [],
             roleData: [],
         };

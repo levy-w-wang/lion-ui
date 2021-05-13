@@ -29,14 +29,14 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="3">
-                        <el-form-item>
+                        <div style="margin-left: 35px;">
                             <el-button type="primary"
                                        size="small"
                                        @click="search">搜索</el-button>
                             <el-button type="info"
                                        size="small"
                                        @click="resetSearch('search_form')">重置</el-button>
-                        </el-form-item>
+                        </div>
                     </el-col>
                 </el-row>
             </el-form>
